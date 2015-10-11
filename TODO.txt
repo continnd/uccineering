@@ -1,0 +1,99 @@
+DEVELOPMENT
+===========
+Some concepts:
+* Extensibility
+    - Make it easy to build on top of the existing architecture
+* Performance
+    - Use STL as much as possible
+    - Do it the C++ way (no arrays, pointers i.e. the ugly stuff)
+* Readability
+    - Intuitive overloading, method APIs
+
+1. Spec out class structures
+2. Decide implementation details
+    - style
+    - VCS
+    - assignment
+3. Implement skeleton
+4. Implement basic
+    - Only Alpha-Beta search
+5. Test basic functionalities
+    - Including communicating with the server
+6. Implement advanced features
+    - multi-threading
+    - reading in opening
+    - ordering of selection
+    - transposition table?
+
+
+CLASS STRUCTURES
+================
+
+Move
+----
+Main class that will be stored in the search tree.
+
+- team
+- depth
+- score
+- location
+
++ operator<(const Move&)
++ operator>(const Move&)
+
+AlphaBeta
+---------
+A simple structure that allows us to pass around the alpha and beta.
+
++ alpha
++ beta
+
+Moderator
+---------
+Intermediate class that does the search operations, handles threading,
+communicating with the server etc..
+
+TODO: members
+
+METHODS
+=======
+Some potential methods to add to the Moderator class.
+
+* dump time durations
+    We can use this to monitor how much time it takes to go down N ply.
+* order moves
+    Sort moves so that we can maximize pruning. Use priority queue?
+
+    for t in threads
+        t.assign_search(p_queue.top())
+        p_queue.pop()
+    endfor
+
+* get depth limit
+    Method that determines the depth limit for the current search. This will be
+    useful when having variable depth limits.
+
+
+OTHERS
+======
+
+* Eval function
+    take away from opponent + reserve for own?
+    Probot - reserve -> 4th -> take away
+
+* transposition table?
+
+* how to keep track of time?
+    event-driven (t.stop_processing if time.now > time_limit)
+    interrupt (using thread::sleep)
+
+* switching between think-while-wait and own turn
+
+* where to put move_stack (in Moderator)?
+
+* how to organize opening init file
+
+* tapping in moves (tell program to place tile at certain location on move X)
+  for debugging purposes
+
+vim: tw=78:et:sw=4:ts=4:sts=4
