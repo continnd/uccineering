@@ -57,8 +57,8 @@ bool GameState::makeMove(const GameMove &gm, bool checkMove, bool checkTerm) {
     if (checkMove && !moveOK(gm))
         return false;
     numMoves++;
-    who = (who == Who::HOME) ? Who::AWAY : Who::HOME;
     thisGameMakeMove(gm);
+    who = (who == Who::HOME) ? Who::AWAY : Who::HOME;
     if (checkTerm)
         checkTerminalUpdateStatus();
     return true;
