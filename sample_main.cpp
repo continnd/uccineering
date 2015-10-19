@@ -10,13 +10,13 @@
 
 int main(int argc, char *argv[]) {
     RandomDomineeringPlayer p("Random");
-	DomineeringState st;
-	GameMove *mv = p->getMove(st, "");
+	// DomineeringState st;
+	// GameMove *mv = p->getMove(st, "");
+    //
+	// std::cout << mv->toString() << std::endl;
+	// st.makeMove(*mv);
+	// std::cout << st.toDisplayStr() << std::endl;
 
-	std::cout << mv->toString() << std::endl;
-	st.makeMove(*mv);
-	std::cout << st.toDisplayStr() << std::endl;
-
-    //p.compete(argc, argv);
+    p.compete(argc, argv);
     return 0;
 }
