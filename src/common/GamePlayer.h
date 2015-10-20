@@ -58,8 +58,7 @@ public:
      * @return The string to be sent to the opponent
      * @param opponent Name of the opponent being played
      */
-    inline std::string messageForOpponent(const std::string &opponentName)
-    { return "hello"; }
+    virtual std::string messageForOpponent(const std::string &opponentName) = 0;
     
     /**
      * This is called at the start of a new game. This should be relatively
