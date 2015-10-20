@@ -1,11 +1,22 @@
+sudo: false
+
 language: cpp
 
 compiler:
     - g++
 
 before_script:
-    - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_CXX_FLAGS=-std=c++11 ..
 
 script: make
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-4.8
+
+before_install:
+    - export CXX="g++-4.8"
