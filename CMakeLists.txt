@@ -5,5 +5,5 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB COMMON_SOURCES "src/common/*.cpp")
 
 include_directories("src/common")
-add_executable(ucineers "src/uccineers.cpp" ${COMMON_SOURCES} ${SOURCES})
+add_executable(uccineers "src/uccineers.cpp" ${COMMON_SOURCES} ${SOURCES})
 set_property(TARGET uccineers PROPERTY CXX_STANDARD 11)
