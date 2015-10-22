@@ -1,0 +1,15 @@
+: 1445478205:0;ls
+: 1445478213:0;vim Moderator.cpp
+: 1445478231:0;cd
+: 1445478804:0;vim Moderator.cpp
+: 1445478938:0;grep "move ordering" **/*
+: 1445478993:0;vim Searcher.cpp
+: 1445490223:0;vim ~/.vimrc
+: 1445490248:0;vim
+: 1445490267:0;vim Searcher.cpp
+: 1445490287:0;fg
+: 1445490318:0;vim Searcher.cpp
+: 1445490449:0;ls ~/.vim/bundle/
+: 1445490459:0;vim ~/.vimrc
+: 1445490463:0;fg
+: 1445490661:0;vim Searcher.cpp

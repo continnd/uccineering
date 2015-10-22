@@ -4,6 +4,7 @@
 #include "GameState.h"
 
 #include <limits>
+#include <algorithm>
 
 /**
  * Simple class that gets passed around when doing the alpha-beta search.
@@ -56,14 +57,10 @@ inline AlphaBeta& AlphaBeta::operator=(const AlphaBeta& other) {
 
 inline void AlphaBeta::update_if_needed(const double score, const Who team) {
     if (team == Who::HOME) {
-        if (score > alpha) {
-            alpha = score;
-        }
+        alpha = std::max(score, alpha);
     }
     else {
-        if (score < beta) {
-            beta = score;
-        }
+        beta = std::min(score, beta);
     }
 }
 
