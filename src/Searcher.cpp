@@ -61,6 +61,9 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     DomineeringState next_state(current_state);
     next_state.togglePlayer();
 
+    // create a branch queue vector for every possible future root node
+    if (parent.depth == 2) bq.emplace_back();
+
     for (const Node& child : expanded) {
         // Update board to simulate placing the child.
         // Done so that we don't need to make a copy of state for each child.
@@ -91,9 +94,14 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
                 break;
             }
         }
+        if (parent.depth == 2) {
+            bq.back().push(child);
+        }
     }
 
-    return current_best.score();
+    if (parent.depth == 3)
+
+        return current_best.score();
 }
 
 /* Private methods */

@@ -9,11 +9,14 @@
 
 #include <algorithm>
 #include <vector>
+#include <queue>
 
 /**
  * A class that performs alpha-beta search in the game of Domineering to find
  * the best possible move for the current turn.
  */
+
+template<typename T> using branch_queue = std::priority_queue<Node, std::vector<Node>, T>;
 
 class Searcher {
 public:
@@ -92,6 +95,27 @@ private:
      * at depth 1.
      */
     std::vector<Node> best_moves;
+
+    /**
+     * Move ordered queues to use depending on the branch chosen for the
+     * current move.
+     */
+    class BestFirst;
+    std::vector<branch_queue<BestFirst>> bq;
+
+    class BestFirst {
+        public :
+            bool operator()(const Node& a, const Node& b) const {
+                return a.depth < b.depth;
+            }
+    };
+
+    class BestLast {
+        public :
+            bool operator()(const Node& a, const Node& b) const {
+                return a.depth >= b.depth;
+            }
+    };
 
     /**
      * Expands the given node for the next possible placement.

@@ -1,0 +1,20 @@
+: 1445468338:0;ls
+: 1445468342:0;buil
+: 1445468344:0;build/
+: 1445468608:0;git pull
+: 1445468610:0;ls
+: 1445468614:0;build/
+: 1445478796:0;ls
+: 1445478799:0;src/
+: 1445522840:0;git remote set-url origin https://github.com/continnd/uccineering
+: 1445522867:0;git commit
+: 1445522885:0;git config --global user.email "continnd@miamioh.edu"
+: 1445522898:0;git config --global user.name "Nick Contini"
+: 1445522901:0;git commit
+: 1445522919:0;vim CMakeLists.txt
+: 1445522944:0;cd build/
+: 1445523120:0;git pull
+: 1445523124:0;cd build/
+: 1445526641:0;ls
+: 1445526644:0;git commit
+: 1445526652:0;git add .
