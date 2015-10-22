@@ -89,6 +89,7 @@ private:
      * The root of the search tree.
      */
     Node root;
+
     /**
      * A vector that contains the best moves for a certain depth.
      * For example, best_moves[1] contains the best move that can be executed
