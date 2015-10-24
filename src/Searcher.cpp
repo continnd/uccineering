@@ -44,8 +44,13 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     if (parent.depth >= depth_limit) {
         return evaluate(current_state);
     }
-
-    auto&& expanded = expand(parent, current_state);
+    std::vector<Node> expanded;
+    auto exp = ordered_moves.find(std::hash<DomineeringState>()(current_state));
+    if (parent.depth == 0 && exp != ordered_moves.end()) {
+        expanded = exp->second;
+    } else {
+        expanded = expand(parent, current_state);
+    }
 
     Node& current_best = best_moves[parent.depth];
 
@@ -93,6 +98,9 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
             }
         }
     }
+    if (parent.depth == 2) {
+        ordered_moves[std::hash<DomineeringState>()(current_state)] = expanded;
+    }
 
     return current_best.score();
 }
@@ -127,8 +135,9 @@ std::vector<Node> Searcher::expand(const Node& parent,
 }
 
 void Searcher::move_order(std::vector<Node>& nodes) {
-    // Do nothing for now
-    // TODO: Better move ordering
+    for (auto&& moves : ordered_moves) {
+        std::sort(moves.second.begin(), moves.second.end(), Searcher::ScoreSort());
+    }
 }
 
 bool Searcher::can_prune(const Node& node, const AlphaBeta& ab) {
