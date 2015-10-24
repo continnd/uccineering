@@ -98,27 +98,6 @@ private:
     std::vector<Node> best_moves;
 
     /**
-     * Move ordered queues to use depending on the branch chosen for the
-     * current move.
-     */
-    class BestFirst;
-    std::vector<branch_queue<BestFirst>> bq;
-
-    class BestFirst {
-        public :
-            bool operator()(const Node& a, const Node& b) const {
-                return a.depth < b.depth;
-            }
-    };
-
-    class BestLast {
-        public :
-            bool operator()(const Node& a, const Node& b) const {
-                return a.depth >= b.depth;
-            }
-    };
-
-    /**
      * Expands the given node for the next possible placement.
      *
      * \param[in] parent the node to expand.
