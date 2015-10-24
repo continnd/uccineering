@@ -60,9 +60,6 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         // POS_INF or NEG_INF
         return current_best.score();
     }
-
-    move_order(expanded);
-
     DomineeringState next_state(current_state);
     next_state.togglePlayer();
 
@@ -134,7 +131,7 @@ std::vector<Node> Searcher::expand(const Node& parent,
     return children;
 }
 
-void Searcher::move_order(std::vector<Node>& nodes) {
+void Searcher::move_order() {
     for (auto&& moves : ordered_moves) {
         std::sort(moves.second.begin(), moves.second.end(), Searcher::ScoreSort());
     }
