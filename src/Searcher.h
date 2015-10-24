@@ -158,6 +158,36 @@ inline void Searcher::set_root(const Node& root) {
     this->root = root;
 }
 
+/**
+ * Combine operation of two hash keys. Based on boost::hash_combine.
+ */
+namespace {
+    void hash_combine(std::size_t& h, const std::size_t& v) {
+        h ^= v + 0x9e3779b9 + (h << 6) + (h >> 2);
+    }
+}
+
+/**
+ * Hash function for DomineeringState.
+ * Yes, it is so much more appropriate for this function to reside in
+ * common/DomineeringState.h but since this file is part of the distributed code
+ * base, I did not want to mess around with it.
+ */
+namespace std {
+    template<>
+    struct hash<DomineeringState> {
+        size_t operator()(const DomineeringState& ds) const {
+            size_t h = 0;
+            for (auto&& c : *ds.getBoard1D()) {
+                if (c == ds.EMPTYSYM) {
+                    hash_combine(h, std::hash<char>()(c));
+                }
+            }
+            return h;
+        }
+    };
+} // namespace std
+
 #endif /* end of include guard */
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
