@@ -71,13 +71,13 @@ inline DomineeringMove Location::to_move() const {
 namespace std {
     template<>
     struct hash<Location> {
-        unsigned operator()(const Location& l) const {
-            unsigned r1 = std::hash<unsigned>()(l.r1);
-            unsigned c1 = std::hash<unsigned>()(l.c1);
-            unsigned r2 = std::hash<unsigned>()(l.r2);
-            unsigned c2 = std::hash<unsigned>()(l.c2);
+        size_t operator()(const Location& l) const {
+            size_t r1{std::hash<unsigned>()(l.r1)};
+            size_t c1{std::hash<unsigned>()(l.c1)};
+            size_t r2{std::hash<unsigned>()(l.r2)};
+            size_t c2{std::hash<unsigned>()(l.c2)};
 
-            unsigned r = ((r1 << 1) ^ r2) >> 1;
+            size_t r{((r1 << 1) ^ r2) >> 1};
             return (((r << 1) ^ c1) >> 1) ^ c2;
         }
     };
