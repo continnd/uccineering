@@ -119,7 +119,7 @@ private:
      *
      * \param[out] nodes the nodes to be reordered for optimal search.
      */
-    void move_order(std::vector<Node>& nodes);
+    void move_order();
     struct ScoreSort {
         bool operator()(Node& a, Node& b) {
             return a.score() <= b.score();
