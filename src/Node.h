@@ -155,10 +155,10 @@ inline bool Node::operator!=(const Node& other) const {
 namespace std {
     template<>
     struct hash<Node> {
-        unsigned operator()(const Node& n) const {
-            unsigned t = std::hash<int>()(static_cast<int>(n.team));
-            unsigned l = std::hash<Location>()(n.location);
-            unsigned d = std::hash<unsigned>()(n.depth);
+        size_t operator()(const Node& n) const {
+            size_t t{std::hash<int>()(static_cast<int>(n.team))};
+            size_t l{std::hash<Location>()(n.location)};
+            size_t d{std::hash<unsigned>()(n.depth)};
 
             return (((t << 1) ^ l) >> 1) ^ d;
         }
