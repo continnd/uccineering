@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <queue>
 
 /**
  * A class that performs alpha-beta search in the game of Domineering to find
