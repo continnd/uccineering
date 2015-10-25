@@ -133,7 +133,7 @@ std::vector<Node> Searcher::expand(const Node& parent,
 
 void Searcher::move_order() {
     for (auto&& moves : ordered_moves) {
-        std::sort(moves.second.begin(), moves.second.end(), Searcher::ScoreSort());
+        std::sort(moves.second.begin(), moves.second.end());
     }
 }
 

@@ -120,11 +120,6 @@ private:
      * \param[out] nodes the nodes to be reordered for optimal search.
      */
     void move_order();
-    struct ScoreSort {
-        bool operator()(Node& a, Node& b) {
-            return a.score() <= b.score();
-        }
-    };
 
     /**
      * Checks if further children nodes can be pruned or not.
