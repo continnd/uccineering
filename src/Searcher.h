@@ -102,11 +102,11 @@ private:
      * can potentially maximize pruning will come towards the front of the
      * list.
      *
-     * Key: hash value of the state. Compared against the actual move that our
-     *      opponent has made, and use the appropriate set of children.
+     * Key: the state. Compared against the actual move that our opponent has
+     *      made, and use the appropriate set of children.
      * Val: the possible children nodes, ordered by preference.
      */
-    std::unordered_map<size_t, std::vector<Node>> ordered_moves;
+    std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
 
     /**
      * Expands the given node for the next possible placement.
