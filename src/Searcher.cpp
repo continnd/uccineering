@@ -136,7 +136,7 @@ void Searcher::move_order(Who team) {
         if (team == Who::HOME)
             std::sort(moves.second.begin(), moves.second.end(), std::greater<Node>());
         else
-            std::sort(moves.second.begin(), moves.second.end());
+            std::sort(moves.second.begin(), moves.second.end(), std::less<Node>());
     }
 }
 
