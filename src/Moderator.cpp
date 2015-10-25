@@ -19,7 +19,7 @@ Moderator::Moderator(const Moderator& other)
 {
 }
 
-Moderator::Moderator(const Moderator&& other)
+Moderator::Moderator(Moderator&& other)
     : team_name{std::move(other.team_name)}
     , searcher{std::move(other.searcher)}
     , GamePlayer(other.team_name, GAME_NAME)

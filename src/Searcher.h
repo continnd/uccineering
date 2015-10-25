@@ -24,13 +24,15 @@ public:
     Searcher(const Searcher& other);
 
     // Move constructor
-    Searcher(const Searcher&& other);
+    Searcher(Searcher&& other);
 
     // Destructor
     ~Searcher();
 
     // Assignment operator
     Searcher& operator=(const Searcher& other);
+
+    Searcher& operator=(Searcher&& other);
 
     /**
      * Gives a starting point to this searcher.
@@ -94,7 +96,17 @@ private:
      */
     std::vector<Node> best_moves;
 
-    std::unordered_map<size_t, std::vector<Node>> ordered_moves;
+    /**
+     * A vectors of Nodes that will potentially be our next move.
+     * The idea is to reorder the Nodes in each vector so that the Nodes that
+     * can potentially maximize pruning will come towards the front of the
+     * list.
+     *
+     * Key: the state. Compared against the actual move that our opponent has
+     *      made, and use the appropriate set of children.
+     * Val: the possible children nodes, ordered by preference.
+     */
+    std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
 
     /**
      * Expands the given node for the next possible placement.
@@ -109,12 +121,12 @@ private:
             const DomineeringState& current_state);
 
     /**
-     * Does move ordering to the given vector of nodes.
-     * Modifies the vector given as the argument. This method orders the
-     * elements in such a way that the most preferred move comes to the
-     * beginning of the vector.
+     * Does move ordering to the vectors of nodes stored as values in the
+     * `ordered_moves' unordered map member variable.
+     * This method orders each of the vector elements in such a way that the
+     * most preferred move for `team' comes to the beginning of the vector.
      *
-     * \param[out] nodes the nodes to be reordered for optimal search.
+     * \param[in] team the team that we belong to.
      */
     void move_order(Who team);
 
@@ -156,36 +168,6 @@ private:
 inline void Searcher::set_root(const Node& root) {
     this->root = root;
 }
-
-/**
- * Combine operation of two hash keys. Based on boost::hash_combine.
- */
-namespace {
-    void hash_combine(std::size_t& h, const std::size_t& v) {
-        h ^= v + 0x9e3779b9 + (h << 6) + (h >> 2);
-    }
-}
-
-/**
- * Hash function for DomineeringState.
- * Yes, it is so much more appropriate for this function to reside in
- * common/DomineeringState.h but since this file is part of the distributed code
- * base, I did not want to mess around with it.
- */
-namespace std {
-    template<>
-    struct hash<DomineeringState> {
-        size_t operator()(const DomineeringState& ds) const {
-            size_t h = 0;
-            for (auto&& c : *ds.getBoard1D()) {
-                if (c == ds.EMPTYSYM) {
-                    hash_combine(h, std::hash<char>()(c));
-                }
-            }
-            return h;
-        }
-    };
-} // namespace std
 
 #endif /* end of include guard */
 

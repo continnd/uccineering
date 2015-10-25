@@ -23,7 +23,7 @@ struct Node {
     Node(const Node& other);
 
     // Move constructor
-    Node(const Node&& other);
+    Node(Node&& other);
 
     // Destructor
     ~Node();
