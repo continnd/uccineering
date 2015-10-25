@@ -7,12 +7,14 @@ Searcher::Searcher() {
 Searcher::Searcher(const Searcher& other)
     : root{other.root}
     , best_moves{other.best_moves}
+    , ordered_moves{other.ordered_moves}
 {
 }
 
 Searcher::Searcher(Searcher&& other)
     : root{std::move(other.root)}
     , best_moves{std::move(other.best_moves)}
+    , ordered_moves{std::move(other.ordered_moves)}
 {
 }
 
@@ -22,6 +24,7 @@ Searcher::~Searcher() {
 Searcher& Searcher::operator=(const Searcher& other) {
     root = other.root;
     best_moves = other.best_moves;
+    ordered_moves = other.ordered_moves;
 
     return *this;
 }
