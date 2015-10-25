@@ -56,7 +56,7 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         return evaluate(current_state);
     }
     std::vector<Node> expanded;
-    auto exp = ordered_moves.find(std::hash<DomineeringState>()(current_state));
+    auto exp = ordered_moves.find(current_state);
     if (parent.depth == 0 && exp != ordered_moves.end()) {
         expanded = exp->second;
     } else {
@@ -112,8 +112,7 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     // Thus, we want to store the children expanded at depth 2, which will be
     // our next moves, and move order them so that we maximize pruning.
     if (parent.depth == 2) {
-        auto state_hash = std::hash<DomineeringState>()(current_state);
-        ordered_moves[state_hash] = expanded;
+        ordered_moves[current_state] = expanded;
     }
 
     return current_best.score();
