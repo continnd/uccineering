@@ -24,13 +24,15 @@ public:
     Searcher(const Searcher& other);
 
     // Move constructor
-    Searcher(const Searcher&& other);
+    Searcher(Searcher&& other);
 
     // Destructor
     ~Searcher();
 
     // Assignment operator
     Searcher& operator=(const Searcher& other);
+
+    Searcher& operator=(Searcher&& other);
 
     /**
      * Gives a starting point to this searcher.

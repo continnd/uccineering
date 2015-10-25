@@ -32,7 +32,7 @@ public:
     Moderator(const Moderator& other);
 
     // Move constructor
-    Moderator(const Moderator&& other);
+    Moderator(Moderator&& other);
 
     // Destructor
     ~Moderator();
