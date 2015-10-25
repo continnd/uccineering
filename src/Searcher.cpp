@@ -131,9 +131,12 @@ std::vector<Node> Searcher::expand(const Node& parent,
     return children;
 }
 
-void Searcher::move_order() {
+void Searcher::move_order(Who team) {
     for (auto&& moves : ordered_moves) {
-        std::sort(moves.second.begin(), moves.second.end(), std::greater<Node>());
+        if (team == Who::HOME)
+            std::sort(moves.second.begin(), moves.second.end(), std::greater<Node>());
+        else
+            std::sort(moves.second.begin(), moves.second.end());
     }
 }
 

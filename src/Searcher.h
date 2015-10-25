@@ -116,7 +116,7 @@ private:
      *
      * \param[out] nodes the nodes to be reordered for optimal search.
      */
-    void move_order();
+    void move_order(Who team);
 
     /**
      * Checks if further children nodes can be pruned or not.
