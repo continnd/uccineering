@@ -94,6 +94,16 @@ private:
      */
     std::vector<Node> best_moves;
 
+    /**
+     * A vectors of Nodes that will potentially be our next move.
+     * The idea is to reorder the Nodes in each vector so that the Nodes that
+     * can potentially maximize pruning will come towards the front of the
+     * list.
+     *
+     * Key: hash value of the state. Compared against the actual move that our
+     *      opponent has made, and use the appropriate set of children.
+     * Val: the possible children nodes, ordered by preference.
+     */
     std::unordered_map<size_t, std::vector<Node>> ordered_moves;
 
     /**
@@ -109,12 +119,12 @@ private:
             const DomineeringState& current_state);
 
     /**
-     * Does move ordering to the given vector of nodes.
-     * Modifies the vector given as the argument. This method orders the
-     * elements in such a way that the most preferred move comes to the
-     * beginning of the vector.
+     * Does move ordering to the vectors of nodes stored as values in the
+     * `ordered_moves' unordered map member variable.
+     * This method orders each of the vector elements in such a way that the
+     * most preferred move for `team' comes to the beginning of the vector.
      *
-     * \param[out] nodes the nodes to be reordered for optimal search.
+     * \param[in] team the team that we belong to.
      */
     void move_order(Who team);
 

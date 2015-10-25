@@ -95,8 +95,14 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
             }
         }
     }
+
+    // The move that our opponent made is at depth 0. We make the best move at
+    // depth 1. Our opponent will make one of the moves expanded at depth 2.
+    // Thus, we want to store the children expanded at depth 2, which will be
+    // our next moves, and move order them so that we maximize pruning.
     if (parent.depth == 2) {
-        ordered_moves[std::hash<DomineeringState>()(current_state)] = expanded;
+        auto state_hash = std::hash<DomineeringState>()(current_state);
+        ordered_moves[state_hash] = expanded;
     }
 
     return current_best.score();
@@ -132,12 +138,13 @@ std::vector<Node> Searcher::expand(const Node& parent,
 }
 
 void Searcher::move_order(Who team) {
-    for (auto&& moves : ordered_moves) {
+    for (auto& p : ordered_moves) {
+        auto& moves = p.second;
         if (team == Who::HOME) {
-            std::sort(moves.second.begin(), moves.second.end(), std::greater<Node>());
+            std::sort(moves.begin(), moves.end(), std::greater<Node>());
         }
         else {
-            std::sort(moves.second.begin(), moves.second.end(), std::less<Node>());
+            std::sort(moves.begin(), moves.end(), std::less<Node>());
         }
     }
 }
