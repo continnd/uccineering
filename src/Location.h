@@ -3,6 +3,8 @@
 
 #include "DomineeringMove.h"
 
+#include <istream>
+
 /**
  * A class that represents a certain location on the board.
  * In the game of Domineering, the location of a domino is described using two

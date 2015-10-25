@@ -6,6 +6,7 @@
 #include "Location.h"
 
 #include <algorithm>
+#include <istream>
 
 /**
  * A class that represents a node in the search tree.
