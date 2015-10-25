@@ -15,8 +15,6 @@
  * the best possible move for the current turn.
  */
 
-template<typename T> using branch_queue = std::priority_queue<Node, std::vector<Node>, T>;
-
 class Searcher {
 public:
     // Default constructor
