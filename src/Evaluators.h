@@ -9,20 +9,19 @@
 // TODO: Better evaluation
 #include <random>
 
+static std::random_device rd;
+static std::uniform_real_distribution<double> u_dist;
+
 using DS = DomineeringState;
 
 struct EvalTakeAway {
     double operator()(const DS& state) const {
-        std::random_device rd;
-        std::uniform_real_distribution<double> u_dist;
         return u_dist(rd);
     }
 };
 
 struct EvalReserve {
     double operator()(const DS& state) const {
-        std::random_device rd;
-        std::uniform_real_distribution<double> u_dist;
         return u_dist(rd);
     }
 };

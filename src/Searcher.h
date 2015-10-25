@@ -86,12 +86,15 @@ private:
      * The root of the search tree.
      */
     Node root;
+
     /**
      * A vector that contains the best moves for a certain depth.
      * For example, best_moves[1] contains the best move that can be executed
      * at depth 1.
      */
     std::vector<Node> best_moves;
+
+    std::unordered_map<size_t, std::vector<Node>> ordered_moves;
 
     /**
      * Expands the given node for the next possible placement.
@@ -113,7 +116,7 @@ private:
      *
      * \param[out] nodes the nodes to be reordered for optimal search.
      */
-    void move_order(std::vector<Node>& nodes);
+    void move_order(Who team);
 
     /**
      * Checks if further children nodes can be pruned or not.
