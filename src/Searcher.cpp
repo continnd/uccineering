@@ -194,5 +194,4 @@ void Searcher::untap(const Node& node, DomineeringState& state) {
     state.setCell(node.location.r2, node.location.c2, c);
 }
 
-
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
