@@ -10,7 +10,7 @@ Searcher::Searcher(const Searcher& other)
 {
 }
 
-Searcher::Searcher(const Searcher&& other)
+Searcher::Searcher(Searcher&& other)
     : root{std::move(other.root)}
     , best_moves{std::move(other.best_moves)}
 {
@@ -22,6 +22,15 @@ Searcher::~Searcher() {
 Searcher& Searcher::operator=(const Searcher& other) {
     root = other.root;
     best_moves = other.best_moves;
+
+    return *this;
+}
+
+Searcher& Searcher::operator=(Searcher&& other) {
+    root = std::move(other.root);
+    best_moves = std::move(other.best_moves);
+    ordered_moves = std::move(other.ordered_moves);
+    tp_table = std::move(other.tp_table);
 
     return *this;
 }

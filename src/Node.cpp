@@ -37,7 +37,7 @@ Node::Node(const Node& other)
 {
 }
 
-Node::Node(const Node&& other)
+Node::Node(Node&& other)
     : team{other.team}
     , depth{other.depth}
     , score_{other.score_}
