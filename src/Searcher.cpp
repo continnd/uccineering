@@ -108,6 +108,17 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     return current_best.score();
 }
 
+double Searcher::evaluate(const DomineeringState& state) {
+    double total = 0;
+    for (auto&& p : evaluators) {
+        auto&& eval_func = p.first;
+        auto&& factor_func = p.second;
+        total += factor_func(state) * eval_func(state);
+    }
+
+    return total;
+}
+
 /* Private methods */
 
 std::vector<Node> Searcher::expand(const Node& parent,
@@ -171,15 +182,5 @@ void Searcher::untap(const Node& node, DomineeringState& state) {
     state.setCell(node.location.r2, node.location.c2, c);
 }
 
-double Searcher::evaluate(const DomineeringState& state) {
-    double total = 0;
-    for (auto&& p : evaluators) {
-        auto&& eval_func = p.first;
-        auto&& factor_func = p.second;
-        total += factor_func(state) * eval_func(state);
-    }
-
-    return total;
-}
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
