@@ -33,7 +33,6 @@ Searcher& Searcher::operator=(Searcher&& other) {
     root = std::move(other.root);
     best_moves = std::move(other.best_moves);
     ordered_moves = std::move(other.ordered_moves);
-    tp_table = std::move(other.tp_table);
 
     return *this;
 }
