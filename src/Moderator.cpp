@@ -19,7 +19,7 @@ Moderator::Moderator(const Moderator& other)
 {
 }
 
-Moderator::Moderator(const Moderator&& other)
+Moderator::Moderator(Moderator&& other)
     : team_name{std::move(other.team_name)}
     , searcher{std::move(other.searcher)}
     , GamePlayer(other.team_name, GAME_NAME)
@@ -59,7 +59,7 @@ GameMove* Moderator::getMove(GameState& state, const std::string& last_move) {
 
 unsigned Moderator::get_search_depth(const DomineeringState& state) const {
     // TODO: Variable depth
-    return 3;
+    return 4;
 }
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */

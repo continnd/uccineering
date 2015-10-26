@@ -38,6 +38,10 @@ public:
     
     BoardGameState& operator = (BoardGameState &&other);
     
+    bool operator==(const BoardGameState& other) const;
+
+    bool operator!=(const BoardGameState& other) const;
+
     /**
      * check if a position is valid on the board
      * @param r the row
@@ -102,5 +106,23 @@ protected:
                    char awaySym, char emptySym);
 };
 
+inline bool BoardGameState::operator==(const BoardGameState& other) const {
+    if (board.size() != other.board.size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < board.size(); i++) {
+        if ((board[i] == EMPTYSYM || other.board[i] == EMPTYSYM)
+            && board[i] != other.board[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline bool BoardGameState::operator!=(const BoardGameState& other) const {
+    return !(board == other.board);
+}
 
 #endif /* defined(__CSE486AIProject__BoardGameState__) */

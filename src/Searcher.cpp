@@ -7,12 +7,14 @@ Searcher::Searcher() {
 Searcher::Searcher(const Searcher& other)
     : root{other.root}
     , best_moves{other.best_moves}
+    , ordered_moves{other.ordered_moves}
 {
 }
 
-Searcher::Searcher(const Searcher&& other)
+Searcher::Searcher(Searcher&& other)
     : root{std::move(other.root)}
     , best_moves{std::move(other.best_moves)}
+    , ordered_moves{std::move(other.ordered_moves)}
 {
 }
 
@@ -22,6 +24,15 @@ Searcher::~Searcher() {
 Searcher& Searcher::operator=(const Searcher& other) {
     root = other.root;
     best_moves = other.best_moves;
+    ordered_moves = other.ordered_moves;
+
+    return *this;
+}
+
+Searcher& Searcher::operator=(Searcher&& other) {
+    root = std::move(other.root);
+    best_moves = std::move(other.best_moves);
+    ordered_moves = std::move(other.ordered_moves);
 
     return *this;
 }
@@ -44,8 +55,13 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     if (parent.depth >= depth_limit) {
         return evaluate(current_state);
     }
-
-    auto&& expanded = expand(parent, current_state);
+    std::vector<Node> expanded;
+    auto exp = ordered_moves.find(current_state);
+    if (parent.depth == 0 && exp != ordered_moves.end()) {
+        expanded = exp->second;
+    } else {
+        expanded = expand(parent, current_state);
+    }
 
     Node& current_best = best_moves[parent.depth];
 
@@ -55,12 +71,10 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         // POS_INF or NEG_INF
         return current_best.score();
     }
-
-    move_order(expanded);
-
     DomineeringState next_state(current_state);
     next_state.togglePlayer();
 
+    // create a branch queue vector for every possible future root node
     for (const Node& child : expanded) {
         // Update board to simulate placing the child.
         // Done so that we don't need to make a copy of state for each child.
@@ -93,7 +107,26 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         }
     }
 
+    // The move that our opponent made is at depth 0. We make the best move at
+    // depth 1. Our opponent will make one of the moves expanded at depth 2.
+    // Thus, we want to store the children expanded at depth 2, which will be
+    // our next moves, and move order them so that we maximize pruning.
+    if (parent.depth == 2) {
+        ordered_moves[current_state] = expanded;
+    }
+
     return current_best.score();
+}
+
+double Searcher::evaluate(const DomineeringState& state) {
+    double total = 0;
+    for (auto&& p : evaluators) {
+        auto&& eval_func = p.first;
+        auto&& factor_func = p.second;
+        total += factor_func(state) * eval_func(state);
+    }
+
+    return total;
 }
 
 /* Private methods */
@@ -125,9 +158,16 @@ std::vector<Node> Searcher::expand(const Node& parent,
     return children;
 }
 
-void Searcher::move_order(std::vector<Node>& nodes) {
-    // Do nothing for now
-    // TODO: Better move ordering
+void Searcher::move_order(Who team) {
+    for (auto& p : ordered_moves) {
+        auto& moves = p.second;
+        if (team == Who::HOME) {
+            std::sort(moves.begin(), moves.end(), std::greater<Node>());
+        }
+        else {
+            std::sort(moves.begin(), moves.end(), std::less<Node>());
+        }
+    }
 }
 
 bool Searcher::can_prune(const Node& node, const AlphaBeta& ab) {
@@ -150,17 +190,6 @@ void Searcher::untap(const Node& node, DomineeringState& state) {
     char c = state.EMPTYSYM;
     state.setCell(node.location.r1, node.location.c1, c);
     state.setCell(node.location.r2, node.location.c2, c);
-}
-
-double Searcher::evaluate(const DomineeringState& state) {
-    double total = 0;
-    for (auto&& p : evaluators) {
-        auto&& eval_func = p.first;
-        auto&& factor_func = p.second;
-        total += factor_func(state) * eval_func(state);
-    }
-
-    return total;
 }
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
