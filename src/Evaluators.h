@@ -8,6 +8,7 @@
 #include <vector>
 // TODO: Better evaluation
 #include <random>
+#include <iostream>
 
 static std::random_device rd;
 static std::uniform_real_distribution<double> u_dist;
@@ -22,6 +23,7 @@ struct EvalTakeAway {
 
 struct EvalReserve {
     double operator()(const DS& state) const {
+	std::cout << "HERE" << std::endl;
         return u_dist(rd);
     }
 };
