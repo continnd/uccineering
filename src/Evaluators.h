@@ -23,7 +23,7 @@ struct EvalTakeAway {
 
 struct EvalReserve {
     double operator()(const DS& state) const {
-	std::cout << "HERE" << std::endl;
+	std::cout << "HERE!" << std::endl;
         return u_dist(rd);
     }
 };
