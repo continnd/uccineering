@@ -5,7 +5,6 @@
 
 #include <functional>
 #include <utility>
-#include <vector>
 
 using DS = DomineeringState;
 
@@ -16,9 +15,6 @@ struct EvalTakeAway {
 	double operator()(const DS& state) const {
 		int count = 0;
 
-		//	Either implement so it counts how many reserved are for opponent
-		//	or counts how many spaces it takes away from opponent
-		// Counts how many reserved are for opponent
 		for (int i = 0; i < state.ROWS; i++){
 			for (int j = 0; j < state.COLS; j++){
 				if (state.getCurPlayerSym() == state.AWAYSYM && state.getCell(i,j) == state.EMPTYSYM){
@@ -47,13 +43,7 @@ struct EvalTakeAway {
 			}
 		}
 
-
-		// Counts how many spaces it takes away from opponent
-
-
-
 		return count;
-		// return u_dist(rd);
 	}
 };
 
@@ -90,7 +80,6 @@ struct EvalReserve {
 				}	
 			}
 		}
-		//        return u_dist(rd);
 		return count;
 	}
 };
