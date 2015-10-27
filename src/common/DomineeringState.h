@@ -48,9 +48,11 @@ namespace std {
     struct hash<DomineeringState> {
         size_t operator()(const DomineeringState& ds) const {
             size_t h = 0;
-            for (auto&& c : *ds.getBoard1D()) {
-                if (c == ds.EMPTYSYM) {
-                    hash_combine(h, std::hash<char>()(c));
+            const std::vector<char>& board = *ds.getBoard1D();
+            const unsigned lim = board.size();
+            for (unsigned i = 0; i < lim; i++) {
+                if (board[i] == ds.EMPTYSYM) {
+                    hash_combine(h, std::hash<unsigned>()(i));
                 }
             }
             return h;
