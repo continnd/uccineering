@@ -23,14 +23,24 @@ struct EvalTakeAway {
 
 struct EvalReserve {
     double operator()(const DS& state) const {
-	std::cout << "HERE!" << std::endl;
 
-	for (int i = 0; i < state.ROWS; i++){
-		for (int j = 0; j < state.COLS; j++){
-			std::cout << state.getCell(i, j);
-		}
-			std::cout << std::endl;
-	}
+	std::cout << "HERE!" << std::endl;
+        std::cout << state.getCurPlayerSym() << std::endl;
+
+        int count = 0;
+
+        // Loop through every square in the board
+        for (int i = 0; i < state.ROWS; i++){
+                for (int j = 0; j < state.COLS; j++){
+                        std::cout << state.getCell(i, j);
+                        // See if adjacent square is open
+                        if ((i < state.ROWS) && (state.getCell(i,j) == state.EMPTYSYM)){
+                                std::cout << "EMPTY" << std::endl;
+                        }
+
+                }
+                        std::cout << std::endl;
+        }
         return u_dist(rd);
     }
 };
