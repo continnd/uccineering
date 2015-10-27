@@ -23,75 +23,39 @@ struct EvalTakeAway {
 
 struct EvalReserve {
     double operator()(const DS& state) const {
-	std::cout << state.getCurPlayerSym() << std::endl;
         int count = 0;
-	// print board
-	 for (int i = 0; i < state.ROWS; i++){
-                for (int j = 0; j < state.COLS; j++){
-                        std::cout << state.getCell(i, j);
-
-                }
-                        std::cout << std::endl;
-        }
-
-
 
         // Loop through every square in the board, if homei
-	
-//	if (state.getCurPlayerSym() == 'W'){
 
-	        for (int i = 0; i < state.ROWS; i++){
-        	        for (int j = 0; j < state.COLS; j++){
-                	        std::cout << state.getCell(i, j);
-				std::cout << i << " " << j << std::endl;
-				if (state.getCurPlayerSym() == 'W' && state.getCell(i,j) == state.EMPTYSYM){
-	                	// See if adjacent square is open
-				        if ((((j+1) < state.ROWS) && (state.getCell(i,j+1) == state.EMPTYSYM))){
-//					Check to see if above&below spaces are empty & inbounds
+        for (int i = 0; i < state.ROWS; i++){
+       	        for (int j = 0; j < state.COLS; j++){
+			if (state.getCurPlayerSym() == 'W' && state.getCell(i,j) == state.EMPTYSYM){
+			        if ((((j+1) < state.ROWS) && (state.getCell(i,j+1) == state.EMPTYSYM))){
+					 if (((i-1) > 0) && ((j+1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j+1) != state.EMPTYSYM) && (((i+1) > state.ROWS) || ((j+1) > state.COLS)) || (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)&& (((i-1) < 0) || ((j+1 < 0))))){
 
-						 if (((i-1) > 0) && ((j+1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j+1) != state.EMPTYSYM) && (((i+1) > state.ROWS) || ((j+1) > state.COLS)) || (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)&& (((i-1) < 0) || ((j+1 < 0))))){
-
-							count++;
-							std::cout << "FOR SURE!!!" << std::endl;
-						}
-						else if ((((i-1) > 0) && ((j+1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j+1) != state.EMPTYSYM)) && (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM))){
-							count++;
-	                                        	std::cout << "FOR SURE!!!" << std::endl;
-						}
-
-	        		 	}	
-				}
-				else if (state.getCurPlayerSym() == 'B' && (state.getCell(i,j) == state.EMPTYSYM)){
+						count++;
+  					  }
+					  else if ((((i-1) > 0) && ((j+1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j+1) != state.EMPTYSYM)) && (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM))){
+						count++;
+					  }
+        		 	 }	
+			  }
+			  else if (state.getCurPlayerSym() == 'B' && (state.getCell(i,j) == state.EMPTYSYM)){
 					 // See if adjacent square is open
-	                                if ((((i+1) < state.ROWS) && (state.getCell(i+1,j) == state.EMPTYSYM))){
+	                  	if ((((i+1) < state.ROWS) && (state.getCell(i+1,j) == state.EMPTYSYM))){
+                                         if ((((i+1) > 0) && ((j-1) > 0) && (state.getCell(i,j-1) != state.EMPTYSYM) && (state.getCell(i+1,j-1) != state.EMPTYSYM) && (((i+1) > state.ROWS) || ((j+1) > state.COLS))) || (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i,j+1) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)&& (((i-1) < 0) || ((j-1 < 0))))){
 
-	                                         if ((((i+1) > 0) && ((j-1) > 0) && (state.getCell(i,j-1) != state.EMPTYSYM) && (state.getCell(i+1,j-1) != state.EMPTYSYM) && (((i+1) > state.ROWS) || ((j+1) > state.COLS))) || (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i,j+1) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)&& (((i-1) < 0) || ((j-1 < 0))))){
-
-        	                                        count++;
-                	                                std::cout << "FOR SURE!!!" << std::endl;
-                        	                }
-					       else if ((((i+1) > 0) && ((j-1) > 0) && (state.getCell(i,j-1) != state.EMPTYSYM) && (state.getCell(i+1,j-1) != state.EMPTYSYM)) && (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i,j+1) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM))){
-                                        	        count++;
-                                                	std::cout << "FOR SURE!!!" << std::endl;
-                                        	}
-
-                                 	}
-
-				  }	
-
-
-        		}
-                        //std::cout << std::endl;
-	        }
-	
-//	else if (state.getCurPlayerSym() == 'B'){
-			
-
-
-//	}
-
-//	std::cout << count << std::endl;
-        return u_dist(rd);
+       	                                        count++;
+                        	          }
+					  else if ((((i+1) > 0) && ((j-1) > 0) && (state.getCell(i,j-1) != state.EMPTYSYM) && (state.getCell(i+1,j-1) != state.EMPTYSYM)) && (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i,j+1) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM))){
+                                                count++;
+                                           }
+                               	}
+			  }	
+       		   }
+        }
+//        return u_dist(rd);
+	return count;
     }
 };
 
