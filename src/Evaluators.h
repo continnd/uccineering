@@ -39,19 +39,37 @@ struct EvalReserve {
 
 
 
-        // Loop through every square in the board
+        // Loop through every square in the board, if homei
+	
+	if (state.getCurPlayerSym() == 'W'){
 
-        for (int i = 0; i < state.ROWS; i++){
-                for (int j = 0; j < state.COLS; j++){
-                        std::cout << state.getCell(i, j+1);
-                        // See if adjacent square is open
-                        if (((j+1) < state.ROWS) && (state.getCell(i,j+1) == state.EMPTYSYM)){
-                                std::cout << "EMPTY" << std::endl;
-                        }
+	        for (int i = 0; i < state.ROWS; i++){
+        	        for (int j = 0; j < state.COLS; j++){
+                	        std::cout << state.getCell(i, j);
+				std::cout << i << " " << j << std::endl;
+	                	// See if adjacent square is open
+			        if ((((j+1) < state.ROWS) && (state.getCell(i,j+1) == state.EMPTYSYM))){
+//				Check to see if above&below spaces are empty & inbounds
+//				if (((i-1) > 0) && ((j-1) > 0) && ((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j-1) != state.EMPTYSYM) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)){
 
-                }
+					 if ((((i-1) > 0) && ((j-1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j-1) != state.EMPTYSYM) && ((i+1) > state.ROWS) && ((j+1) > state.COLS)) || (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM)&& ((i-1) < 0) && ((j-1 < 0)))){
+
+						count++;
+						std::cout << "FOR SURE!!!" << std::endl;
+					}
+					else if ((((i-1) > 0) && ((j-1) > 0) && (state.getCell(i-1,j) != state.EMPTYSYM) && (state.getCell(i-1,j-1) != state.EMPTYSYM)) && (((i+1) < state.ROWS) && ((j+1) < state.COLS) && (state.getCell(i+1,j) != state.EMPTYSYM) && (state.getCell(i+1,j+1) != state.EMPTYSYM))){
+						count++;
+	                                        std::cout << "FOR SURE!!!" << std::endl;
+					}
+
+	        		 }	
+
+        		        }
                         std::cout << std::endl;
-        }
+	        }
+	}
+
+	std::cout << count << std::endl;
         return u_dist(rd);
     }
 };
