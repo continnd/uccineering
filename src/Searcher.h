@@ -6,8 +6,11 @@
 #include "Evaluators.h"
 #include "Location.h"
 #include "Node.h"
+#include "TranspositionTable.h"
 
 #include <algorithm>
+#include <fstream>
+#include <unordered_map>
 #include <vector>
 
 /**
@@ -19,6 +22,14 @@ class Searcher {
 public:
     // Default constructor
     Searcher();
+
+    /**
+     * Instantiates a searcher and read the transposition table from the given
+     * ifstream.
+     *
+     * \param[in] ifs the ifstream to read the transposition table from.
+     */
+    Searcher(std::ifstream& ifs);
 
     // Copy constructor
     Searcher(const Searcher& other);
@@ -107,6 +118,12 @@ private:
      * Val: the possible children nodes, ordered by preference.
      */
     std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
+
+    /**
+     * Transposition table that is used to find duplicates in board
+     * configurations.
+     */
+    TranspositionTable tp_table;
 
     /**
      * Expands the given node for the next possible placement.
