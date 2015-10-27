@@ -6,18 +6,13 @@
 #include <functional>
 #include <utility>
 #include <vector>
-// TODO: Better evaluation
-#include <random>
-#include <iostream>
-
-static std::random_device rd;
-static std::uniform_real_distribution<double> u_dist;
 
 using DS = DomineeringState;
 
 // TO DO: make helper methods.
 
 struct EvalTakeAway {
+
     double operator()(const DS& state) const {
 	int count = 0;
 
