@@ -17,7 +17,7 @@ struct Evaluator {
 	}
 
 	bool checkEdgePieceReserveHome(int a, int b, int c, int d, const DS& state) const{
-		if (((a > 0) && (b > 0) && (state.getCell(a,c) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (d > state.ROWS) || (b > state.COLS)) || ((d < state.ROWS) && (b < state.COLS) && (state.getCell(d,c) != state.EMPTYSYM) && (state.getCell(d,b) != state.EMPTYSYM)&& ((a < 0) || ((b < 0)))))
+		if (((a > 0) && (b > 0) && (state.getCell(a,c) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (d == state.ROWS) || (b == state.COLS)) || ((d < state.ROWS) && (b < state.COLS) && (state.getCell(d,c) != state.EMPTYSYM) && (state.getCell(d,b) != state.EMPTYSYM)&& ((a < 0) || ((b < 0)))))
 			return true;
 		return false;
 	}
@@ -30,7 +30,7 @@ struct Evaluator {
 
 	bool checkEdgePieceReserveAway(int a, int b, int c, int d, int e, const DS& state) const{
 
-		if (((a > 0) && (b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && ((a > state.ROWS) || (d > state.COLS))) || ((a < state.ROWS) && (d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM) && ((e < 0) || ((b < 0)))))
+		if (((b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (d == state.COLS)) || ((d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM) && ((b < 0))))
 			return true;
 		return false;
 
@@ -39,19 +39,20 @@ struct Evaluator {
 	bool checkMiddlePieceReserveAway(int a, int b, int c, int d, const DS& state) const{
 
 
-		if (((a > 0) && (b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM)) && ((a < state.ROWS) && (d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM)))
+		if ((a > 0) && (b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (a < state.ROWS) && (d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM))
 			return true;
 		return false;
 	}
 
-	int checkHomeReserve(int i, int j, int count, const DS& state) const{
+/*	int checkHomeReserve(int i, int j, int count, const DS& state) const{
 		if (checkIfNextEmpty(i, j+1, state)){
 
 			if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
-
+//				std::cout << "Edge home for sure" << std::endl;
 				count++;
 			}
 			else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
+//				std::cout << "middle home for sure" << std::endl;
 
 				count++;
 			}
@@ -63,16 +64,18 @@ struct Evaluator {
 		if (checkIfNextEmpty(i+1, j, state)){
 
 			if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
+//				std::cout << "Edge away for sure" << std::endl;
 
 				count++;
 			}
 			else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
+//				std::cout << "middle away for sure" << std::endl;
 
 				count++;
 			}
 		}
 		return count;
-	}
+	}*/
 
 };
 
@@ -84,11 +87,28 @@ struct EvalTakeAway : public Evaluator{
 		for (int i = 0; i < state.ROWS; i++){
 			for (int j = 0; j < state.COLS; j++){
 				if (state.getCurPlayerSym() == state.HOMESYM && state.getCell(i,j) == state.EMPTYSYM){
-					count = count + checkHomeReserve(i,j,count,state);
+					if (checkIfNextEmpty(i, j+1, state)){
+
+						if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
+							count++;
+						}
+						else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
+							count++;
+						}
+					}
+
 				}
 
 				else if (state.getCurPlayerSym() == state.AWAYSYM && (state.getCell(i,j) == state.EMPTYSYM)){
-					count = count + checkAwayReserve(i,j,count,state);
+					if ((i+1) < state.ROWS && (state.getCell(i+1,j) == state.EMPTYSYM)){
+
+						if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
+							count++;
+						}
+						else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
+							count++;
+						}
+					}
 				}
 			}
 		}
@@ -103,10 +123,27 @@ struct EvalReserve : public Evaluator {
 		for (int i = 0; i < state.ROWS; i++){
 			for (int j = 0; j < state.COLS; j++){
 				if (state.getCurPlayerSym() == state.AWAYSYM && state.getCell(i,j) == state.EMPTYSYM){
-					count = count + checkHomeReserve(i,j,count,state);
-				}
+					if (checkIfNextEmpty(i, j+1, state)){
+
+						if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
+							count++;
+						}
+						else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
+							count++;
+						}
+					}
+}
 				else if (state.getCurPlayerSym() == state.HOMESYM && (state.getCell(i,j) == state.EMPTYSYM)){
-					count = count + checkAwayReserve(i,j,count,state);
+					if ((i+1) < state.ROWS && (state.getCell(i+1,j) == state.EMPTYSYM)){
+
+
+						if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
+							count++;
+						}
+						else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
+							count++;
+						}
+					}
 				}
 			}
 		}
