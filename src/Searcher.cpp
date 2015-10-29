@@ -123,7 +123,8 @@ double Searcher::evaluate(const DomineeringState& state) {
     for (auto&& p : evaluators) {
         auto&& eval_func = p.first;
         auto&& factor_func = p.second;
-        total += factor_func(state) * eval_func(state);
+	total += (factor_func(state) + ((-1)*eval_func(state)));
+//        total += factor_func(state) * eval_func(state);
     }
 
     return total;

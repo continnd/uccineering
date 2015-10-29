@@ -44,37 +44,37 @@ struct Evaluator {
 		return false;
 	}
 
-/*	int checkHomeReserve(int i, int j, int count, const DS& state) const{
+	/*	int checkHomeReserve(int i, int j, int count, const DS& state) const{
 		if (checkIfNextEmpty(i, j+1, state)){
 
-			if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
-//				std::cout << "Edge home for sure" << std::endl;
-				count++;
-			}
-			else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
-//				std::cout << "middle home for sure" << std::endl;
+		if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
+	//				std::cout << "Edge home for sure" << std::endl;
+	count++;
+	}
+	else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
+	//				std::cout << "middle home for sure" << std::endl;
 
-				count++;
-			}
-		}
-		return count;
+	count++;
+	}
+	}
+	return count;
 	}
 
 	int checkAwayReserve(int i, int j, int count, const DS& state) const{
-		if (checkIfNextEmpty(i+1, j, state)){
+	if (checkIfNextEmpty(i+1, j, state)){
 
-			if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
-//				std::cout << "Edge away for sure" << std::endl;
+	if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
+	//				std::cout << "Edge away for sure" << std::endl;
 
-				count++;
-			}
-			else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
-//				std::cout << "middle away for sure" << std::endl;
+	count++;
+	}
+	else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
+	//				std::cout << "middle away for sure" << std::endl;
 
-				count++;
-			}
-		}
-		return count;
+	count++;
+	}
+	}
+	return count;
 	}*/
 
 };
@@ -132,7 +132,7 @@ struct EvalReserve : public Evaluator {
 							count++;
 						}
 					}
-}
+				}
 				else if (state.getCurPlayerSym() == state.HOMESYM && (state.getCell(i,j) == state.EMPTYSYM)){
 					if ((i+1) < state.ROWS && (state.getCell(i+1,j) == state.EMPTYSYM)){
 
