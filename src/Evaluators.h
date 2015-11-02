@@ -9,105 +9,99 @@
 using DS = DomineeringState;
 
 struct Evaluator {
+    /**
+     * Checks if there is space to put a `self' domino when r1 and c1 are the
+     * given.
+     * Depending on `self', bottom tile or the right tile is checked.
+     */
+    bool has_space_for(const Who self, const int r1, const int c1,
+                       const DS& state) const {
+        auto empty = state.EMPTYSYM;
+        if (state.getCell(r1, c1) != empty) {
+            return false;
+        }
 
-    bool checkIfNextEmpty(int a, int b, const DS& state) const{
-        if (a < state.ROWS && b < state.ROWS && state.getCell(a,b) == state.EMPTYSYM)
-            return true;
-        return false;
+        auto r2 = self == Who::HOME ? r1 : r1 + 1;
+        auto c2 = self == Who::HOME ? c1 + 1 : c1;
+
+        if ((r1 < 0 || r1 >= state.ROWS || c1 < 0 || c1 >= state.ROWS)
+            || (r2 < 0 || r2 >= state.ROWS || c2 < 0 || c2 >= state.ROWS)) {
+            return false;
+        }
+
+        return state.getCell(r2, c2) == empty;
     }
 
-    bool checkEdgePieceReserveHome(int a, int b, int c, int d, const DS& state) const{
-        if (((a > 0) && (b > 0) && (state.getCell(a,c) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (d == state.ROWS) || (b == state.COLS)) || ((d < state.ROWS) && (b < state.COLS) && (state.getCell(d,c) != state.EMPTYSYM) && (state.getCell(d,b) != state.EMPTYSYM)&& ((a < 0) || ((b < 0)))))
-            return true;
-        return false;
+    bool home_edge(int r1, int c1, int c2, int r2, const DS& state) const {
+        return (r1 > 0 && c1 > 0
+                && r2 == state.ROWS
+                || c1 == state.COLS
+                && state.getCell(r1, c2) != state.EMPTYSYM
+                && state.getCell(r1, c1) != state.EMPTYSYM)
+
+            || ((r1 < 0 || c1 < 0)
+                && r2 < state.ROWS
+                && c1 < state.COLS
+                && state.getCell(r2, c2) != state.EMPTYSYM
+                && state.getCell(r2, c1) != state.EMPTYSYM);
     }
 
-    bool checkMiddlePieceReserveHome(int a, int b, int c, int d, const DS& state) const{
-        if (((a > 0) && (b > 0) && (state.getCell(a,c) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM)) && ((d < state.ROWS) && (b < state.COLS) && (state.getCell(d,c) != state.EMPTYSYM) && (state.getCell(d,b) != state.EMPTYSYM)))
-            return true;
-        return false;
+    bool home_mid(int r1, int c1, int r2, int c2, const DS& state) const {
+        return (r1 > 0 && c1 > 0
+                && state.getCell(r1, c2) != state.EMPTYSYM
+                && state.getCell(r1, c1) != state.EMPTYSYM)
+
+            && (r2 < state.ROWS && c1 < state.COLS
+                && state.getCell(r2, c2) != state.EMPTYSYM
+                && state.getCell(r2, c1) != state.EMPTYSYM);
     }
 
-    bool checkEdgePieceReserveAway(int a, int b, int c, int d, int e, const DS& state) const{
+    bool away_edge(int r1, int c1, int r2, int c2, const DS& state) const {
+        return (c1 > 0 && c2 == state.COLS
+                && state.getCell(r2, c1) != state.EMPTYSYM
+                && state.getCell(r1, c1) != state.EMPTYSYM)
 
-        if (((b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (d == state.COLS)) || ((d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM) && ((b < 0))))
-            return true;
-        return false;
-
+            || (c1 < 0 && c2 < state.COLS
+                && state.getCell(r2, c2) != state.EMPTYSYM
+                && state.getCell(r1, c2) != state.EMPTYSYM);
     }
 
-    bool checkMiddlePieceReserveAway(int a, int b, int c, int d, const DS& state) const{
-
-
-        if ((a > 0) && (b > 0) && (state.getCell(c,b) != state.EMPTYSYM) && (state.getCell(a,b) != state.EMPTYSYM) && (a < state.ROWS) && (d < state.COLS) && (state.getCell(c,d) != state.EMPTYSYM) && (state.getCell(a,d) != state.EMPTYSYM))
-            return true;
-        return false;
+    bool away_mid(int r1, int c1, int r2, int c2, const DS& state) const {
+        return (r1 > 0 && c1 > 0
+                && r1 < state.ROWS
+                && c2 < state.COLS
+                && state.getCell(r2, c1) != state.EMPTYSYM
+                && state.getCell(r1, c1) != state.EMPTYSYM
+                && state.getCell(r2, c2) != state.EMPTYSYM
+                && state.getCell(r1, c2) != state.EMPTYSYM);
     }
-
-    /*  int checkHomeReserve(int i, int j, int count, const DS& state) const{
-        if (checkIfNextEmpty(i, j+1, state)){
-
-        if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
-    //              std::cout << "Edge home for sure" << std::endl;
-    count++;
-    }
-    else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
-    //              std::cout << "middle home for sure" << std::endl;
-
-    count++;
-    }
-    }
-    return count;
-    }
-
-    int checkAwayReserve(int i, int j, int count, const DS& state) const{
-    if (checkIfNextEmpty(i+1, j, state)){
-
-    if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
-    //              std::cout << "Edge away for sure" << std::endl;
-
-    count++;
-    }
-    else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
-    //              std::cout << "middle away for sure" << std::endl;
-
-    count++;
-    }
-    }
-    return count;
-    }*/
-
 };
 
-struct EvalTakeAway : public Evaluator{
-
+struct EvalTakeAway : public Evaluator {
     double operator()(const DS& state) const {
         int count = 0;
+        auto self = state.getWho();
 
-        for (int i = 0; i < state.ROWS; i++){
-            for (int j = 0; j < state.COLS; j++){
-                if (state.getCurPlayerSym() == state.HOMESYM && state.getCell(i,j) == state.EMPTYSYM){
-                    if (checkIfNextEmpty(i, j+1, state)){
-
-                        if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
-                            count++;
-                        }
-                        else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
-                            count++;
-                        }
-                    }
-
+        for (int i = 0; i < state.ROWS; i++) {
+            for (int j = 0; j < state.COLS; j++) {
+                if (!has_space_for(self, i, j, state)) {
+                    continue;
                 }
 
-                else if (state.getCurPlayerSym() == state.AWAYSYM && (state.getCell(i,j) == state.EMPTYSYM)){
-                    if ((i+1) < state.ROWS && (state.getCell(i+1,j) == state.EMPTYSYM)){
-
-                        if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
-                            count++;
-                        }
-                        else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
-                            count++;
-                        }
+                if (self == Who::HOME) {
+                    if (home_edge(i-1, j+1, i+1, j, state)) {
+                        count++;
+                    }
+                    else if (home_mid(i-1, j+1, i+1, j, state)) {
+                        count++;
+                    }
+                }
+                else {
+                    if (away_edge(i + 1, j - 1, i, j + 1, state)) {
+                        count++;
+                    }
+                    else if (away_mid(i + 1, j - 1, i, j + 1, state)) {
+                        count++;
                     }
                 }
             }
@@ -119,30 +113,28 @@ struct EvalTakeAway : public Evaluator{
 struct EvalReserve : public Evaluator {
     double operator()(const DS& state) const {
         int count = 0;
+        auto self = state.getWho();
 
-        for (int i = 0; i < state.ROWS; i++){
-            for (int j = 0; j < state.COLS; j++){
-                if (state.getCurPlayerSym() == state.AWAYSYM && state.getCell(i,j) == state.EMPTYSYM){
-                    if (checkIfNextEmpty(i, j+1, state)){
+        for (int i = 0; i < state.ROWS; i++) {
+            for (int j = 0; j < state.COLS; j++) {
+                if (!has_space_for(self, i, j, state)) {
+                    continue;
+                }
 
-                        if (checkEdgePieceReserveHome(i-1,j+1,j,i+1,state)){
-                            count++;
-                        }
-                        else if (checkMiddlePieceReserveHome(i-1,j+1,j,i+1,state)){
-                            count++;
-                        }
+                if (state.getCurPlayerSym() == state.AWAYSYM) {
+                    if (home_edge(i - 1, j + 1, i + 1, j, state)) {
+                        count++;
+                    }
+                    else if (home_mid(i - 1, j + 1, i + 1, j, state)) {
+                        count++;
                     }
                 }
-                else if (state.getCurPlayerSym() == state.HOMESYM && (state.getCell(i,j) == state.EMPTYSYM)){
-                    if ((i+1) < state.ROWS && (state.getCell(i+1,j) == state.EMPTYSYM)){
-
-
-                        if (checkEdgePieceReserveAway(i+1,j-1,i,j+1,i-1,state)){
-                            count++;
-                        }
-                        else if (checkMiddlePieceReserveAway(i+1,j-1,i,j+1,state)){
-                            count++;
-                        }
+                else if (state.getCurPlayerSym() == state.HOMESYM) {
+                    if (away_edge(i + 1, j - 1, i, j + 1, state)) {
+                        count++;
+                    }
+                    else if (away_mid(i + 1, j - 1, i, j + 1, state)) {
+                        count++;
                     }
                 }
             }
@@ -156,8 +148,16 @@ using EvalFactor = std::function<double(const DS&)>;
 // vector of pairs because std::map requires operator< and std::unordered_map
 // requires operator== and hash function for DomineeringState
 static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
-    { std::make_pair(EvalTakeAway(), [](const DS& state) { return 1; }) },
-    { std::make_pair(EvalReserve(), [](const DS& state) { return 1; }) },
+    {
+        std::make_pair(EvalTakeAway(), [](const DS& state) {
+                       return 1;
+                       })
+    },
+    {
+        std::make_pair(EvalReserve(), [](const DS& state) {
+                       return 1;
+                       })
+    },
 };
 
 #endif /* end of include guard */
