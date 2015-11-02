@@ -16,8 +16,7 @@ struct Evaluator {
      */
     bool has_space_for(const Who self, const int r1, const int c1,
                        const DS& state) const {
-        auto empty = state.EMPTYSYM;
-        if (state.getCell(r1, c1) != empty) {
+        if (state.getCell(r1, c1) != state.EMPTYSYM) {
             return false;
         }
 
@@ -29,7 +28,7 @@ struct Evaluator {
             return false;
         }
 
-        return state.getCell(r2, c2) == empty;
+        return state.getCell(r2, c2) == state.EMPTYSYM;
     }
 
     bool home_edge(int r1, int c1, int c2, int r2, const DS& state) const {
