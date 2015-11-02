@@ -80,8 +80,10 @@ public:
      *
      * \return the score that results from the best move.
      */
-    double search_under(const Node& parent, AlphaBeta ab,
-            const DomineeringState& state, const unsigned depth_limit);
+    Evaluator::score_t search_under(const Node& parent,
+                                    AlphaBeta ab,
+                                    const DomineeringState& state,
+                                    const unsigned depth_limit);
 
     /**
      * Given a state (i.e. the current board), this method evaluates and gives
@@ -92,7 +94,7 @@ public:
      *
      * \return the score.
      */
-    double evaluate(const DomineeringState& state);
+    Evaluator::score_t evaluate(const DomineeringState& state);
 
 private:
     /**

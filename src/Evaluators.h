@@ -9,6 +9,8 @@
 using DS = DomineeringState;
 
 struct Evaluator {
+    using score_t = int;
+
     /**
      * Checks if there is space to put a `self' domino when r1 and c1 are the
      * given.

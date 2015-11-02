@@ -57,7 +57,7 @@ Node Searcher::search(const DomineeringState& state,
     return best_moves.front();
 }
 
-double Searcher::search_under(const Node& parent, AlphaBeta ab,
+Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
         const DomineeringState& current_state, const unsigned depth_limit) {
     // Base case
     if (parent.depth >= depth_limit) {
@@ -88,7 +88,7 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
 
-        double result;
+        Evaluator::score_t result;
         bool found;
         // Check for transpositions that were already explored
         std::tie(result, found) = tp_table.check(next_state);
@@ -134,8 +134,8 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
     return current_best.score();
 }
 
-double Searcher::evaluate(const DomineeringState& state) {
-    double total = 0;
+Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
+    Evaluator::score_t total = 0;
     for (auto&& p : evaluators) {
         auto&& eval_func = p.first;
         auto&& factor_func = p.second;
