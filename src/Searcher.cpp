@@ -110,7 +110,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
             return current_best.score();
         }
 
-        bool result_better = current_best.team == Who::HOME
+        bool result_better = parent.team == Who::HOME
             ? result > current_best.score()
             : result < current_best.score();
         if (result_better || current_best.is_unset) {
