@@ -43,7 +43,7 @@ public:
      * the time alloted by the game timing parameters. Default behavior is
      * to do nothing.
      */
-    inline void init() { }
+    virtual inline void init() { }
     
     /**
      * This is called to register the opponent's message to this player.

@@ -37,6 +37,12 @@ Moderator& Moderator::operator=(const Moderator& other) {
 }
 /* }}} */
 
+void Moderator::init() {
+    std::string file_name = TranspositionTable::TP_FILE_NAME;
+    std::ifstream ifs{file_name, std::ios::in | std::ios::binary};
+    searcher = Searcher(ifs);
+}
+
 DomineeringMove Moderator::next_move(const DomineeringState& state) {
     // Set the starting node
     searcher.set_root(Node(state.getWho(), 0));

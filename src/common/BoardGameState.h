@@ -112,8 +112,8 @@ inline bool BoardGameState::operator==(const BoardGameState& other) const {
     }
 
     for (size_t i = 0; i < board.size(); i++) {
-        if ((board[i] == EMPTYSYM || other.board[i] == EMPTYSYM)
-            && board[i] != other.board[i]) {
+        if ((board[i] == EMPTYSYM && other.board[i] != EMPTYSYM)
+            || (board[i] != EMPTYSYM && other.board[i] == EMPTYSYM)) {
             return false;
         }
     }

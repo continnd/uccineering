@@ -4,10 +4,15 @@
 Searcher::Searcher() {
 }
 
+Searcher::Searcher(std::ifstream& ifs) {
+    tp_table.populate(ifs);
+}
+
 Searcher::Searcher(const Searcher& other)
     : root{other.root}
     , best_moves{other.best_moves}
     , ordered_moves{other.ordered_moves}
+    , tp_table{other.tp_table}
 {
 }
 
@@ -15,6 +20,7 @@ Searcher::Searcher(Searcher&& other)
     : root{std::move(other.root)}
     , best_moves{std::move(other.best_moves)}
     , ordered_moves{std::move(other.ordered_moves)}
+    , tp_table{std::move(other.tp_table)}
 {
 }
 
@@ -25,6 +31,7 @@ Searcher& Searcher::operator=(const Searcher& other) {
     root = other.root;
     best_moves = other.best_moves;
     ordered_moves = other.ordered_moves;
+    tp_table = other.tp_table;
 
     return *this;
 }
@@ -33,6 +40,7 @@ Searcher& Searcher::operator=(Searcher&& other) {
     root = std::move(other.root);
     best_moves = std::move(other.best_moves);
     ordered_moves = std::move(other.ordered_moves);
+    tp_table = std::move(other.tp_table);
 
     return *this;
 }
@@ -82,8 +90,16 @@ double Searcher::search_under(const Node& parent, AlphaBeta ab,
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
 
-        // Recursive call
-        double result = search_under(child, ab, next_state, depth_limit);
+        double result;
+        bool found;
+        // Check for transpositions that were already explored
+        std::tie(result, found) = tp_table.check(next_state);
+        if (!found) {
+            // Recursive call
+            result = search_under(child, ab, next_state, depth_limit);
+            // Add result to transposition table
+            tp_table.insert(next_state, result);
+        }
 
         // Rewind to board before placing the child
         untap(child, next_state);
