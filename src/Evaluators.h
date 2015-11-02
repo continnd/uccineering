@@ -77,82 +77,38 @@ struct Evaluator {
     }
 };
 
-struct EvalTakeAway : public Evaluator {
-    double operator()(const DS& state) const {
-        int count = 0;
-        auto self = state.getWho();
-
-        for (int i = 0; i < state.ROWS; i++) {
-            for (int j = 0; j < state.COLS; j++) {
-                if (!has_space_for(self, i, j, state)) {
-                    continue;
-                }
-
-                if (self == Who::HOME) {
-                    if (home_edge(i-1, j+1, i+1, j, state)) {
-                        count++;
-                    }
-                    else if (home_mid(i-1, j+1, i+1, j, state)) {
-                        count++;
-                    }
-                }
-                else {
-                    if (away_edge(i + 1, j - 1, i, j + 1, state)) {
-                        count++;
-                    }
-                    else if (away_mid(i + 1, j - 1, i, j + 1, state)) {
-                        count++;
-                    }
-                }
-            }
-        }
-        return count;
-    }
-};
-
 struct EvalReserve : public Evaluator {
-    double operator()(const DS& state) const {
-        int count = 0;
-        auto self = state.getWho();
+    score_t operator()(const DS& state) const {
+        score_t home_count = 0;
+        score_t away_count = 0;
 
         for (int i = 0; i < state.ROWS; i++) {
             for (int j = 0; j < state.COLS; j++) {
-                if (!has_space_for(self, i, j, state)) {
-                    continue;
+                // Check if HOME has reserved spot here
+                if (has_space_for(Who::HOME, i, j, state)
+                    && (home_edge(i - 1, j + 1, i + 1, j, state)
+                        || home_mid(i - 1, j + 1, i + 1, j, state))) {
+                    home_count++;
                 }
 
-                if (state.getCurPlayerSym() == state.AWAYSYM) {
-                    if (home_edge(i - 1, j + 1, i + 1, j, state)) {
-                        count++;
-                    }
-                    else if (home_mid(i - 1, j + 1, i + 1, j, state)) {
-                        count++;
-                    }
-                }
-                else if (state.getCurPlayerSym() == state.HOMESYM) {
-                    if (away_edge(i + 1, j - 1, i, j + 1, state)) {
-                        count++;
-                    }
-                    else if (away_mid(i + 1, j - 1, i, j + 1, state)) {
-                        count++;
-                    }
+                // Check if AWAY has reserved spot here
+                if (has_space_for(Who::AWAY, i, j, state)
+                    && (away_edge(i + 1, j - 1, i, j + 1, state)
+                        || away_mid(i + 1, j - 1, i, j + 1, state))) {
+                    away_count++;
                 }
             }
         }
-        return count;
+
+        return home_count - away_count;
     }
 };
 
-using EvalScore = std::function<double(const DS&)>;
-using EvalFactor = std::function<double(const DS&)>;
+using EvalScore = std::function<Evaluator::score_t(const DS&)>;
+using EvalFactor = std::function<Evaluator::score_t(const DS&)>;
 // vector of pairs because std::map requires operator< and std::unordered_map
 // requires operator== and hash function for DomineeringState
 static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
-    {
-        std::make_pair(EvalTakeAway(), [](const DS& state) {
-                       return 1;
-                       })
-    },
     {
         std::make_pair(EvalReserve(), [](const DS& state) {
                        return 1;
