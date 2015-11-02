@@ -6,6 +6,8 @@
 #include <functional>
 #include <utility>
 
+#include <iostream>
+
 using DS = DomineeringState;
 
 struct Evaluator {
@@ -99,18 +101,18 @@ struct EvalReserve : public Evaluator {
             }
         }
 	
-	 for (int i = 0; i < state.ROWS; i++) {
-            for (int j = 0; j < state.COLS; j++) {
-                std::cout << state.getCell(i,j);
+//	 for (int i = 0; i < state.ROWS; i++) {
+ //           for (int j = 0; j < state.COLS; j++) {
+  //              std::cout << state.getCell(i,j);
 
-            }
-                std::cout << std::endl;
-        }
+    //        }
+     //           std::cout << std::endl;
+      //  }
 
 
-        std::cout << "HOME: " << home_count << std::endl;
+//        std::cout << "HOME: " << home_count << std::endl;
 
-        std::cout << "AWAY: " << away_count << std::endl;
+  //      std::cout << "AWAY: " << away_count << std::endl;
 
         // if we are home return this.
         return home_count - away_count;
