@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <vector>
 #include <queue>
+#include <thread>
 
 /**
  * A class that performs alpha-beta search in the game of Domineering to find
@@ -99,6 +100,8 @@ private:
 
     std::unordered_map<size_t, std::vector<Node>> ordered_moves;
 
+    std::thread move_thread;
+
     /**
      * Expands the given node for the next possible placement.
      *
@@ -121,7 +124,7 @@ private:
      */
     void move_order();
     struct ScoreSort {
-        bool operator()(Node& a, Node& b) {
+        bool operator()(const Node& a, const Node& b) {
             return a.score() <= b.score();
         }
     };
