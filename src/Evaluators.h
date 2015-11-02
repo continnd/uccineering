@@ -25,8 +25,8 @@ struct Evaluator {
         auto r2 = self == Who::HOME ? r1 : r1 + 1;
         auto c2 = self == Who::HOME ? c1 + 1 : c1;
 
-        if ((r1 < 0 || r1 >= state.ROWS || c1 < 0 || c1 >= state.ROWS)
-            || (r2 < 0 || r2 >= state.ROWS || c2 < 0 || c2 >= state.ROWS)) {
+        if ((r1 < 0 || r1 >= state.ROWS || c1 < 0 || c1 >= state.COLS)
+            || (r2 < 0 || r2 >= state.ROWS || c2 < 0 || c2 >= state.COLS)) {
             return false;
         }
 
@@ -34,14 +34,12 @@ struct Evaluator {
     }
 
     bool home_edge(int r1, int c1, int c2, int r2, const DS& state) const {
-        return (r1 > 0 && c1 > 0
-                && r2 == state.ROWS
-                || c1 == state.COLS
+        return (r1 > 0 && r2 == state.ROWS
+                && c1 < state.COLS
                 && state.getCell(r1, c2) != state.EMPTYSYM
                 && state.getCell(r1, c1) != state.EMPTYSYM)
 
-            || ((r1 < 0 || c1 < 0)
-                && r2 < state.ROWS
+            || (r1 < 0 && r2 < state.ROWS
                 && c1 < state.COLS
                 && state.getCell(r2, c2) != state.EMPTYSYM
                 && state.getCell(r2, c1) != state.EMPTYSYM);
@@ -58,11 +56,11 @@ struct Evaluator {
     }
 
     bool away_edge(int r1, int c1, int r2, int c2, const DS& state) const {
-        return (c1 > 0 && c2 == state.COLS
+        return (c1 > 0 && c2 == state.COLS && r1 < state.ROWS
                 && state.getCell(r2, c1) != state.EMPTYSYM
                 && state.getCell(r1, c1) != state.EMPTYSYM)
 
-            || (c1 < 0 && c2 < state.COLS
+            || (c1 < 0 && c2 < state.COLS && r1 < state.ROWS
                 && state.getCell(r2, c2) != state.EMPTYSYM
                 && state.getCell(r1, c2) != state.EMPTYSYM);
     }
@@ -100,8 +98,25 @@ struct EvalReserve : public Evaluator {
                 }
             }
         }
+	
+	 for (int i = 0; i < state.ROWS; i++) {
+            for (int j = 0; j < state.COLS; j++) {
+                std::cout << state.getCell(i,j);
 
+            }
+                std::cout << std::endl;
+        }
+
+
+        std::cout << "HOME: " << home_count << std::endl;
+
+        std::cout << "AWAY: " << away_count << std::endl;
+
+        // if we are home return this.
         return home_count - away_count;
+        // if we are away return this
+//      return away_count - home_count;
+
     }
 };
 
