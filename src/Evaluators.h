@@ -11,6 +11,41 @@ using DS = DomineeringState;
 struct Evaluator {
     using score_t = int;
 
+    static const char MARKEDSYM = '!';
+
+    /**
+     * Mark that's used to indicate that a grid is already checked.
+     * Note that the `clear_checked' method should be called after all
+     * operations are done so that there are no temporary marks on the board
+     * after Searcher::evaluate exits.
+     *
+     * \param[in] r the row to be marked.
+     *
+     * \param[in] c the column to be marked.
+     *
+     * \param[out] state the state that contains the board to be modified.
+     */
+    inline void mark(const int r, const int c, DS& state) {
+        if (state.getCell(r, c) != state.EMPTYSYM) {
+            return;
+        }
+
+        state.setCell(r, c, MARKEDSYM);
+    }
+
+    /**
+     * Unmarks the checked symbol and revert back to the empty state.
+     */
+    void clear_marks(DS& state) {
+        for (int i = 0; i < state.ROWS; i++) {
+            for (int j = 0; j < state.COLS; j++) {
+                if (state.getCell(i, j) == MARKEDSYM) {
+                    state.setCell(i, j, state.EMPTYSYM);
+                }
+            }
+        }
+    }
+
     /**
      * Checks if the given grid is empty or not.
      * Note that this method does boundary checks first, which returns false
@@ -89,47 +124,139 @@ struct Evaluator {
     }
 };
 
-struct EvalReserve : public Evaluator {
-    score_t operator()(const DS& state) const {
+struct EvalHomeReserved : public Evaluator {
+    score_t operator()(DS* state) {
         score_t home_count = 0;
-        score_t away_count = 0;
 
-        for (int r = 0; r < state.ROWS; r++) {
-            for (int c = 0; c < state.COLS; c++) {
+        for (int r = 0; r < state->ROWS; r++) {
+            for (int c = 0; c < state->COLS; c++) {
                 // Check if HOME has reserved spot here
                 // Note: the method does boundary check
-                if (reserved_for_home(r, c, r, c + 1, state)) {
+                if (reserved_for_home(r, c, r, c + 1, *state)) {
                     home_count++;
-                    // Go to the next column to skip over (r, c + 1)
-                    c++;
-                }
-            }
-        }
-        for (int c = 0; c < state.COLS; c++) {
-            for (int r = 0; r < state.ROWS; r++) {
-                // Check if AWAY has reserved spot here
-                // Note: the method does boundary check
-                if (reserved_for_away(r, c, r + 1, c, state)) {
-                    away_count++;
-                    // Go to the next row to skip over (r + 1, c)
-                    r++;
+                    // Mark grids so that we don't check again
+                    mark(r, c, *state);
+                    mark(r, c + 1, *state);
                 }
             }
         }
 
-        return home_count - away_count;
+        return home_count;
     }
 };
 
-using EvalScore = std::function<Evaluator::score_t(const DS&)>;
+struct EvalHomeOpen : public Evaluator {
+    score_t operator()(DS* state) {
+        score_t home_count = 0;
+
+        for (int c = 0; c < state->COLS; c++) {
+            for (int r = 0; r < state->ROWS; r++) {
+                // Check if AWAY has reserved spot here
+                // Note: the method does boundary check
+                if (placable(r, c, r, c + 1, *state)) {
+                    home_count++;
+                    // Mark grids so that we don't check again
+                    mark(r, c, *state);
+                    mark(r, c + 1, *state);
+                }
+            }
+        }
+
+        return home_count;
+    }
+};
+
+struct EvalAwayReserved : public Evaluator {
+    score_t operator()(DS* state) {
+        score_t away_count = 0;
+
+        for (int c = 0; c < state->COLS; c++) {
+            for (int r = 0; r < state->ROWS; r++) {
+                // Check if AWAY has reserved spot here
+                // Note: the method does boundary check
+                if (reserved_for_away(r, c, r + 1, c, *state)) {
+                    away_count++;
+                    // Mark grids so that we don't check again
+                    mark(r, c, *state);
+                    mark(r + 1, c, *state);
+                }
+            }
+        }
+
+        return away_count;
+    }
+};
+
+struct EvalAwayOpen : public Evaluator {
+    score_t operator()(DS* state) {
+        score_t away_count = 0;
+
+        for (int c = 0; c < state->COLS; c++) {
+            for (int r = 0; r < state->ROWS; r++) {
+                // Check if AWAY has reserved spot here
+                // Note: the method does boundary check
+                if (placable(r, c, r + 1, c, *state)) {
+                    away_count++;
+                    // Mark grids so that we don't check again
+                    mark(r, c, *state);
+                    mark(r + 1, c, *state);
+                }
+            }
+        }
+
+        return away_count;
+    }
+};
+
+/**
+ * Housekeeping class that clears the marks indicated on the board.
+ */
+struct ClearMarks : public Evaluator {
+    score_t operator()(DS* state) {
+        clear_marks(*state);
+    }
+};
+
+using EvalScore = std::function<Evaluator::score_t(DS*)>;
 using EvalFactor = std::function<Evaluator::score_t(const DS&)>;
-// vector of pairs because std::map requires operator< and std::unordered_map
-// requires operator== and hash function for DomineeringState
+// vector of pairs to indicate semantics that the order must be followed
 static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
+    /* Evaluators for HOME */
     {
-        std::make_pair(EvalReserve(), [](const DS& state) {
-                       return 1;
+        // First count the reserved, marking each reserved spot so that we
+        // don't double count.
+        std::make_pair(EvalHomeReserved(), [](const DS& state) {
+                       return state.getWho() == Who::HOME ? 2 : 0;
                        })
+    },
+    {
+        // Then count the remaining open spots for HOME
+        std::make_pair(EvalHomeOpen(), [](const DS& state) {
+                       return state.getWho() == Who::HOME ? 1 : -1;
+                       })
+    },
+    {
+        // Clear the marks on the board
+        std::make_pair(ClearMarks(), [](const DS& state) { return 0; })
+    },
+
+    /* Evaluators for AWAY */
+    {
+        // First count the reserved, marking each reserved spot so that we
+        // don't double count.
+        std::make_pair(EvalAwayReserved(), [](const DS& state) {
+                       return state.getWho() == Who::HOME ? 0 : -2;
+                       })
+    },
+    {
+        // Then count the remaining open spots for HOME
+        std::make_pair(EvalAwayOpen(), [](const DS& state) {
+                       return state.getWho() == Who::HOME ? -1 : 1;
+                       })
+    },
+    {
+        // Clear the marks on the board
+        std::make_pair(ClearMarks(), [](const DS& state) { return 0; })
     },
 };
 

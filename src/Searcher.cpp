@@ -140,11 +140,14 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
 }
 
 Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
+    // A copy of the state so that we can mark places temporarily and pass
+    // that around to various evaluators
+    DomineeringState state_copy{state};
     Evaluator::score_t total = 0;
     for (auto&& p : evaluators) {
         auto&& eval_func = p.first;
         auto&& factor_func = p.second;
-        total += factor_func(state) * eval_func(state);
+        total += factor_func(state) * eval_func(&state_copy);
     }
 
     return total;
