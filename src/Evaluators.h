@@ -35,7 +35,7 @@ struct Evaluator {
         return state.getCell(r2, c2) == state.EMPTYSYM;
     }
 
-    bool home_edge(int r1, int c1, int c2, int r2, const DS& state) const {
+    bool home_edge(int r1, int c1, int r2, int c2, const DS& state) const {
         return (r1 > 0 && r2 == state.ROWS
                 && c1 < state.COLS
                 && state.getCell(r1, c2) != state.EMPTYSYM
@@ -101,18 +101,19 @@ struct EvalReserve : public Evaluator {
             }
         }
 	
-//	 for (int i = 0; i < state.ROWS; i++) {
- //           for (int j = 0; j < state.COLS; j++) {
-  //              std::cout << state.getCell(i,j);
+	 for (int i = 0; i < state.ROWS; i++) {
+           for (int j = 0; j < state.COLS; j++) {
+              std::cout << state.getCell(i,j);
 
-    //        }
-     //           std::cout << std::endl;
-      //  }
+        }
+           std::cout << std::endl;
+  }
 
 
-//        std::cout << "HOME: " << home_count << std::endl;
+        std::cout << "HOME: " << home_count << std::endl;
 
-  //      std::cout << "AWAY: " << away_count << std::endl;
+      std::cout << "AWAY: " << away_count << std::endl;
+	std::cout << "BOTH: " << home_count - away_count << std::endl;
 
         // if we are home return this.
         return home_count - away_count;
