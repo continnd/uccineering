@@ -127,17 +127,18 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
                                 break;
                         }
                 }
-        }
 
-        // The move that our opponent made is at depth 0. We make the best move at
-        // depth 1. Our opponent will make one of the moves expanded at depth 2.
-        // Thus, we want to store the children expanded at depth 2, which will be
-        // our next moves, and move order them so that we maximize pruning.
-        if (parent.depth == 2) {
-                ordered_moves[current_state] = expanded;
-        }
 
-        return current_best.score();
+                // The move that our opponent made is at depth 0. We make the best move at
+                // depth 1. Our opponent will make one of the moves expanded at depth 2.
+                // Thus, we want to store the children expanded at depth 2, which will be
+                // our next moves, and move order them so that we maximize pruning.
+                if (parent.depth == 2) {
+                        ordered_moves[current_state] = expanded;
+                }
+
+                return current_best.score();
+        }
 }
 
 Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
@@ -145,8 +146,7 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
         for (auto&& p : evaluators) {
                 auto&& eval_func = p.first;
                 auto&& factor_func = p.second;
-                //      total += factor_func(state) * eval_func(state);
-                total += eval_func(state);
+                total += factor_func(state) * eval_func(state);
         }
 
         return total;
