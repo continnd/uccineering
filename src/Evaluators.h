@@ -135,4 +135,3 @@ static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
 #endif /* end of include guard */
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
-

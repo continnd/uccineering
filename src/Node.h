@@ -2,6 +2,7 @@
 #define NODE_H_
 
 #include "AlphaBeta.h"
+#include "Evaluators.h"
 #include "GameState.h"
 #include "Location.h"
 
@@ -72,7 +73,7 @@ struct Node {
     /**
      * \return the score of this node.
      */
-    double score() const;
+    Evaluator::score_t score() const;
 
     /**
      * Setter for the score.
@@ -80,7 +81,7 @@ struct Node {
      *
      * \param[in] score the new score.
      */
-    void set_score(const double score);
+    void set_score(const Evaluator::score_t score);
 
     /**
      * \return true if this node is a terminal node, false otherwise.
@@ -106,16 +107,16 @@ struct Node {
     bool is_unset;
 
 private:
-    double score_;
+    Evaluator::score_t score_;
     /* True if node is a terminal node */
     bool is_terminal_;
 };
 
-inline double Node::score() const {
+inline Evaluator::score_t Node::score() const {
     return score_;
 }
 
-inline void Node::set_score(const double score) {
+inline void Node::set_score(const Evaluator::score_t score) {
     this->score_ = score;
     is_unset = false;
 }
