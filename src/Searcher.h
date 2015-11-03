@@ -121,6 +121,9 @@ private:
      */
     std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
 
+    /**
+     * Thread that is spawned to do move ordering during the opponents turn.
+     */
     std::thread move_thread;
 
     /**
@@ -140,7 +143,15 @@ private:
      */
     std::vector<Node> expand(const Node& parent,
             const DomineeringState& current_state);
-
+    
+    /**
+     * Does move ordering to the vectors of nodes stored as values in the
+     * `ordered_moves' unordered map member variable.  This method orders each
+     * of the vector elements in such a way that the most preferred move for
+     * `team' comes to the beginning of the vector.
+     * 
+     * \param[in] team the team that we belong to.
+     */
     void move_order(Who team);
 
     /**
