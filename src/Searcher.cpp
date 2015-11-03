@@ -114,8 +114,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
             ? result > current_best.score()
             : result < current_best.score();
         if (result_better || current_best.is_unset) {
-            // TODO: Change best_moves to vector<vector<Node>> and push to that?
-            current_best = child;
+            current_best = std::move(child);
             current_best.set_score(result);
 
             ab.update_if_needed(result, parent.team);
