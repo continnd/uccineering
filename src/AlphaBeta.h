@@ -78,6 +78,12 @@ inline void AlphaBeta::update_if_needed(const score_t score, const Who team) {
     }
 }
 
+inline bool AlphaBeta::can_prune(const score_t score, const Who team) {
+    return team == Who::HOME
+        ? score >= beta || score == POS_INF
+        : score <= alpha || score == NEG_INF;
+}
+
 #endif /* end of include guard */
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */

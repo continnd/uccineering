@@ -120,7 +120,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
 
             ab.update_if_needed(result, parent.team);
 
-            if (can_prune(current_best, ab)) {
+            if (ab.can_prune(result, parent.team)) {
                 break;
             }
         }
@@ -187,16 +187,6 @@ void Searcher::move_order(Who team) {
             std::sort(moves.begin(), moves.end(), std::less<Node>());
         }
     }
-}
-
-bool Searcher::can_prune(const Node& node, const AlphaBeta& ab) {
-    if (node.is_unset) {
-        return false;
-    }
-
-    return node.team == Who::HOME
-        ? node.score() >= ab.beta
-        : node.score() <= ab.alpha;
 }
 
 void Searcher::tap(const Node& node, DomineeringState& state) {

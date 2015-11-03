@@ -150,18 +150,6 @@ private:
     void move_order(Who team);
 
     /**
-     * Checks if further children nodes can be pruned or not.
-     *
-     * \param[in] node the node to be examined. If pruning is valid, all of
-     *                 its children are not searched.
-     *
-     * \param[in] ab the current alpha-beta values for this node.
-     *
-     * \return true if children nodes can be pruned, false otherwise.
-     */
-    bool can_prune(const Node& node, const AlphaBeta& ab);
-
-    /**
      * Simulates the placing of a domino (i.e. move).
      * This is done by placing changing the grids on the board pointed by the
      * node to whatever team the node belongs to. Searcher::untap should be
