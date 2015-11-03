@@ -1,6 +1,7 @@
 #ifndef ALPHA_BETA_H_
 #define ALPHA_BETA_H_
 
+#include "Evaluators.h"
 #include "GameState.h"
 
 #include <limits>
@@ -10,15 +11,16 @@
  * Simple class that gets passed around when doing the alpha-beta search.
  */
 struct AlphaBeta {
-    static constexpr double POS_INF = std::numeric_limits<double>::max();
-    static constexpr double NEG_INF = std::numeric_limits<double>::min();
+    using score_t = Evaluator::score_t;
+    static constexpr score_t POS_INF = std::numeric_limits<score_t>::max();
+    static constexpr score_t NEG_INF = std::numeric_limits<score_t>::min();
 
     AlphaBeta()
         : alpha{NEG_INF}
         , beta{POS_INF}
     { }
 
-    AlphaBeta(const double alpha, const double beta)
+    AlphaBeta(const score_t alpha, const score_t beta)
         : alpha{alpha}
         , beta{beta}
     { }
@@ -40,13 +42,25 @@ struct AlphaBeta {
      *
      * \param[in] team
      */
-    void update_if_needed(const double score, const Who team);
+    void update_if_needed(const score_t score, const Who team);
+
+    /**
+     * Checks if further children nodes can be pruned or not.
+     *
+     * \param[in] score the score that the node got.
+     *
+     * \param[in] team the team of the node to be examined. If pruning is valid,
+     *                 all of its children are not searched.
+     *
+     * \return true if children nodes can be pruned, false otherwise.
+     */
+    bool can_prune(const score_t score, const Who team);
 
     /**
      * alpha = best max/home score
      * beta = best min/away score
      */
-    double alpha, beta;
+    score_t alpha, beta;
 };
 
 inline AlphaBeta& AlphaBeta::operator=(const AlphaBeta& other) {
@@ -55,7 +69,7 @@ inline AlphaBeta& AlphaBeta::operator=(const AlphaBeta& other) {
     return *this;
 }
 
-inline void AlphaBeta::update_if_needed(const double score, const Who team) {
+inline void AlphaBeta::update_if_needed(const score_t score, const Who team) {
     if (team == Who::HOME) {
         alpha = std::max(score, alpha);
     }
