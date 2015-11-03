@@ -107,7 +107,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
 
         // Found path to a terminal state
         if (result == AlphaBeta::POS_INF || result == AlphaBeta::NEG_INF) {
-            current_best = child;
+            current_best = std::move(child);
             current_best.set_as_terminal();
             // POS_INF or NEG_INF
             return current_best.score();
