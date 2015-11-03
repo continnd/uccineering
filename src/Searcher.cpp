@@ -48,11 +48,15 @@ Searcher& Searcher::operator=(Searcher&& other) {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
+    if (move_thread.joinable()) {
+        move_thread.join();
+    }
     best_moves.resize(depth_limit + 1);
     std::fill(best_moves.begin(), best_moves.end(), Node());
 
     AlphaBeta ab(AlphaBeta::NEG_INF, AlphaBeta::POS_INF);
     search_under(root, ab, state, depth_limit);
+    move_thread = std::thread(&Searcher::move_order, this, root.team);
 
     return best_moves.front();
 }
