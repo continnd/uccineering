@@ -112,9 +112,6 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
             return current_best.score();
         }
 
-//        std::cout << "CB: " << current_best.score() << std::endl;
-//	std::cout << "team: " << (parent.team == Who::HOME) << std::endl;	
- 
 	bool result_better = parent.team == Who::HOME
             ? result > current_best.score()
             : result < current_best.score();
@@ -123,7 +120,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
             // TODO: Change best_moves to vector<vector<Node>> and push to that?
             current_best = child;
             current_best.set_score(result);
-		std::cout << "CBA: " << current_best.score() << std::endl;	
+	//	std::cout << "CBA: " << current_best.score() << std::endl;	
 	    ab.update_if_needed(result, parent.team);
 
             if (can_prune(current_best, ab)) {
