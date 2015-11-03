@@ -20,7 +20,9 @@ float Timer::get_time() {
 int Timer::get_suggested_depth(int b, float time_allotted) {
     int i;
     for (i = 0; i < predicted_times[b].size(); i++) {
-        if (predicted_times[b][i] >= time_allotted) break;
+        if (predicted_times[b][i] >= time_allotted) {
+            break;
+        }
     }
     return i < predicted_times[b].size() ? i - 1 : predicted_times[b].back();
 }
