@@ -63,11 +63,13 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
     if (parent.depth >= depth_limit) {
         return evaluate(current_state);
     }
+
     std::vector<Node> expanded;
     auto exp = ordered_moves.find(current_state);
     if (parent.depth == 0 && exp != ordered_moves.end()) {
         expanded = exp->second;
-    } else {
+    }
+    else {
         expanded = expand(parent, current_state);
     }
 
@@ -79,6 +81,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
         // POS_INF or NEG_INF
         return current_best.score();
     }
+
     DomineeringState next_state(current_state);
     next_state.togglePlayer();
 
