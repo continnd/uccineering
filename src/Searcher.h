@@ -141,20 +141,6 @@ private:
     std::vector<Node> expand(const Node& parent,
             const DomineeringState& current_state);
 
-    /**
-     * Does move ordering to the vectors of nodes stored as values in the
-     * `ordered_moves' unordered map member variable.
-     * This method orders each of the vector elements in such a way that the
-     * most preferred move for `team' comes to the beginning of the vector.
-     *
-     * \param[in] team the team that we belong to.
-     */
-    struct ScoreSort {
-        bool operator()(const Node& a, const Node& b) {
-            return a.score() <= b.score();
-        }
-    };
-
     void move_order(Who team);
 
     /**
