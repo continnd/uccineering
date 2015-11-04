@@ -88,7 +88,7 @@ void Searcher::search_under(const Node& parent,
     // `parent' is a terminal node
     if (children.empty()) {
         current_best = parent;
-        current_best.set_as_terminal();
+        current_best.set_as_terminal(current_state);
         return;
     }
 

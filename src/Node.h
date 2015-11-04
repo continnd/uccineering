@@ -90,10 +90,16 @@ struct Node {
 
     /**
      * Changes the node to a terminal node.
-     * The score is updated depending on which team this node belongs to
-     * (POS_INF if HOME, NEG_INF if AWAY).
+     * The score is updated depending on the status of the game (POS_INF if
+     * status is HOME_WIN, NEG_INF if AWAY_WIN).
+     *
+     * \param[in] state current state of the board. Passed in by value because
+     *                  the `DomineeringState::status' member variable needs
+     *                  to be updated first (due to how the library is
+     *                  currently implemented) in order for us to be able to
+     *                  get the status of the game.
      */
-    void set_as_terminal();
+    void set_as_terminal(DomineeringState state);
 
     void update_ab(AlphaBeta* const ab) const;
 
@@ -125,13 +131,17 @@ inline bool Node::is_terminal() const {
     return is_terminal_;
 }
 
-inline void Node::set_as_terminal() {
+inline void Node::set_as_terminal(DomineeringState state) {
     is_terminal_ = true;
 
-    if (team == Who::HOME) {
+    // Update the DomineeringState::state variable
+    state.checkTerminalUpdateStatus();
+    // Now get the updated status
+    auto status = state.getStatus();
+    if (status == Status::HOME_WIN) {
         set_score(AlphaBeta::POS_INF);
     }
-    else {
+    else if (status == Status::AWAY_WIN) {
         set_score(AlphaBeta::NEG_INF);
     }
 }
