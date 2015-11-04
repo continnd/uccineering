@@ -163,6 +163,12 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
     return total;
 }
 
+void Searcher::cleanup() {
+    if (move_thread.joinable()) {
+        move_thread.join();
+    }
+}
+
 /* Private methods */
 
 std::vector<Node> Searcher::expand(const Node& parent,

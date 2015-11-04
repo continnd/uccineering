@@ -43,6 +43,10 @@ void Moderator::init() {
     searcher = Searcher(ifs);
 }
 
+void Moderator::done() {
+    searcher.cleanup();
+}
+
 DomineeringMove Moderator::next_move(const DomineeringState& state) {
     // Set the starting node
     searcher.set_root(Node(state.getWho(), 0));

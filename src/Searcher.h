@@ -95,6 +95,12 @@ public:
      */
     Evaluator::score_t evaluate(const DomineeringState& state);
 
+    /**
+     * Does cleanup before the program exits.
+     * For example, it joins the threads that it spawned.
+     */
+    void cleanup();
+
 private:
     /**
      * The root of the search tree.
