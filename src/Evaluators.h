@@ -25,7 +25,7 @@ struct Evaluator {
      *
      * \param[out] state the state that contains the board to be modified.
      */
-    inline void mark(const int r, const int c, DS& state) {
+    inline void mark(const int r, const int c, DS& state) const {
         if (state.getCell(r, c) != state.EMPTYSYM) {
             return;
         }
@@ -36,7 +36,7 @@ struct Evaluator {
     /**
      * Unmarks the checked symbol and revert back to the empty state.
      */
-    void clear_marks(DS& state) {
+    void clear_marks(DS& state) const {
         for (int i = 0; i < state.ROWS; i++) {
             for (int j = 0; j < state.COLS; j++) {
                 if (state.getCell(i, j) == MARKEDSYM) {
@@ -125,7 +125,7 @@ struct Evaluator {
 };
 
 struct EvalHomeReserved : public Evaluator {
-    score_t operator()(DS* state) {
+    score_t operator()(DS* state) const {
         score_t home_count = 0;
 
         for (int r = 0; r < state->ROWS; r++) {
@@ -146,7 +146,7 @@ struct EvalHomeReserved : public Evaluator {
 };
 
 struct EvalHomeOpen : public Evaluator {
-    score_t operator()(DS* state) {
+    score_t operator()(DS* state) const {
         score_t home_count = 0;
 
         for (int c = 0; c < state->COLS; c++) {
@@ -167,7 +167,7 @@ struct EvalHomeOpen : public Evaluator {
 };
 
 struct EvalAwayReserved : public Evaluator {
-    score_t operator()(DS* state) {
+    score_t operator()(DS* state) const {
         score_t away_count = 0;
 
         for (int c = 0; c < state->COLS; c++) {
@@ -188,7 +188,7 @@ struct EvalAwayReserved : public Evaluator {
 };
 
 struct EvalAwayOpen : public Evaluator {
-    score_t operator()(DS* state) {
+    score_t operator()(DS* state) const {
         score_t away_count = 0;
 
         for (int c = 0; c < state->COLS; c++) {
@@ -212,54 +212,18 @@ struct EvalAwayOpen : public Evaluator {
  * Housekeeping class that clears the marks indicated on the board.
  */
 struct ClearMarks : public Evaluator {
-    score_t operator()(DS* state) {
+    score_t operator()(DS* state) const {
         clear_marks(*state);
         return 0;
     }
 };
 
-using EvalScore = std::function<Evaluator::score_t(DS*)>;
-using EvalFactor = std::function<Evaluator::score_t(const DS&)>;
-// vector of pairs to indicate semantics that the order must be followed
-static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
-    /* Evaluators for HOME */
-    {
-        // First count the reserved, marking each reserved spot so that we
-        // don't double count.
-        std::make_pair(EvalHomeReserved(), [](const DS& state) {
-                       return 2;
-                       })
-    },
-    {
-        // Then count the remaining open spots for HOME
-        std::make_pair(EvalHomeOpen(), [](const DS& state) {
-                       return 1;
-                       })
-    },
-    {
-        // Clear the marks on the board
-        std::make_pair(ClearMarks(), [](const DS& state) { return 0; })
-    },
-
-    /* Evaluators for AWAY */
-    {
-        // First count the reserved, marking each reserved spot so that we
-        // don't double count.
-        std::make_pair(EvalAwayReserved(), [](const DS& state) {
-                       return -2;
-                       })
-    },
-    {
-        // Then count the remaining open spots for HOME
-        std::make_pair(EvalAwayOpen(), [](const DS& state) {
-                       return -1;
-                       })
-    },
-    {
-        // Clear the marks on the board
-        std::make_pair(ClearMarks(), [](const DS& state) { return 0; })
-    },
-};
+/* Evaluators so that we don't have to instantiate every evaluation */
+static const EvalHomeReserved home_reserved;
+static const EvalHomeOpen home_open;
+static const EvalAwayReserved away_reserved;
+static const EvalAwayOpen away_open;
+static const ClearMarks clear_marks;
 
 #endif /* end of include guard */
 
