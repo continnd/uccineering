@@ -82,8 +82,10 @@ public:
      *
      * \return the score that results from the best move.
      */
-    double search_under(const Node& parent, AlphaBeta ab,
-            const DomineeringState& state, const unsigned depth_limit);
+    Evaluator::score_t search_under(const Node& parent,
+                                    AlphaBeta ab,
+                                    const DomineeringState& state,
+                                    const unsigned depth_limit);
 
     /**
      * Given a state (i.e. the current board), this method evaluates and gives
@@ -94,7 +96,7 @@ public:
      *
      * \return the score.
      */
-    double evaluate(const DomineeringState& state);
+    Evaluator::score_t evaluate(const DomineeringState& state);
 
 private:
     /**
@@ -153,18 +155,6 @@ private:
      * \param[in] team the team that we belong to.
      */
     void move_order(Who team);
-
-    /**
-     * Checks if further children nodes can be pruned or not.
-     *
-     * \param[in] node the node to be examined. If pruning is valid, all of
-     *                 its children are not searched.
-     *
-     * \param[in] ab the current alpha-beta values for this node.
-     *
-     * \return true if children nodes can be pruned, false otherwise.
-     */
-    bool can_prune(const Node& node, const AlphaBeta& ab);
 
     /**
      * Simulates the placing of a domino (i.e. move).

@@ -2,12 +2,15 @@
 #define TRANSPOSITION_TABLE_H_
 
 #include "DomineeringState.h"
+#include "Evaluators.h"
 
 #include <cmath>
 #include <fstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
+
+using score_t = Evaluator::score_t;
 
 class TranspositionTable {
 public:
@@ -46,11 +49,11 @@ public:
      *
      * \param[in] state the state to check
      *
-     * \return a std::pair<double, bool> where the first element is the score
+     * \return a std::pair<score_t, bool> where the first element is the score
      *         and the second element is true if there was a hit in any of the
      *         transposition, false otherwise.
      */
-    std::pair<double, bool> check(const DomineeringState& state);
+    std::pair<score_t, bool> check(const DomineeringState& state);
 
     /**
      * Adds the current state and the resulting score to the transposition
@@ -65,7 +68,7 @@ public:
      *
      * \param[in] score the best score that results from the given state.
      */
-    void insert(DomineeringState& state, const double score);
+    void insert(DomineeringState& state, const score_t score);
 
 private:
     /**
@@ -78,18 +81,18 @@ private:
      *
      * TODO: score or Node for the value?
      */
-    std::unordered_map<DomineeringState, double> table;
+    std::unordered_map<DomineeringState, score_t> table;
 
     /**
      * Checks if state is in the transposition table for all four direction by
      * rotating.
      */
-    std::pair<double, bool> check_four_directions(DomineeringState& state);
+    std::pair<score_t, bool> check_four_directions(DomineeringState& state);
 
     /**
      * Rotates the board and adds them to the transposition table.
      */
-    void add_four_directions(DomineeringState& state, const double score);
+    void add_four_directions(DomineeringState& state, const score_t score);
 
     /**
      * Flips the board vertically (along the y-axis).
