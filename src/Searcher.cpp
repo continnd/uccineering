@@ -91,6 +91,15 @@ void Searcher::search_under(const Node& parent,
         return;
     }
 
+    // The move that our opponent made (our starting point) is at depth 0. We
+    // make the best move at depth 1. Our opponent will make one of the moves
+    // at depth 2. Thus, we want to store the depth-3 children at depth 2,
+    // which will be our next moves, and move order them so that we maximize
+    // pruning.
+    if (parent.depth == 2) {
+        ordered_moves[current_state] = children;
+    }
+
     /*
      * Reset the score to POS_INF or NEG_INF depending on which team this node
      * belongs to.
@@ -136,14 +145,6 @@ void Searcher::search_under(const Node& parent,
                 return;
             }
         }
-    }
-
-    // The move that our opponent made is at depth 0. We make the best move at
-    // depth 1. Our opponent will make one of the moves children at depth 2.
-    // Thus, we want to store the children children at depth 2, which will be
-    // our next moves, and move order them so that we maximize pruning.
-    if (parent.depth == 2) {
-        ordered_moves[current_state] = children;
     }
 
     return;
