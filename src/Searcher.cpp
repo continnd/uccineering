@@ -83,6 +83,14 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
     }
 
     DomineeringState next_state(current_state);
+    /*
+     * Reset the score to POS_INF or NEG_INF depending on which team this node
+     * belongs to.
+     */
+    current_best.set_score(parent.team == Who::HOME
+                           ? AlphaBeta::NEG_INF
+                           : AlphaBeta::POS_INF);
+
     next_state.togglePlayer();
 
     // create a branch queue vector for every possible future root node
