@@ -214,6 +214,7 @@ struct EvalAwayOpen : public Evaluator {
 struct ClearMarks : public Evaluator {
     score_t operator()(DS* state) {
         clear_marks(*state);
+        return 0;
     }
 };
 
@@ -226,13 +227,13 @@ static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
         // First count the reserved, marking each reserved spot so that we
         // don't double count.
         std::make_pair(EvalHomeReserved(), [](const DS& state) {
-                       return state.getWho() == Who::HOME ? 2 : 0;
+                       return 2;
                        })
     },
     {
         // Then count the remaining open spots for HOME
         std::make_pair(EvalHomeOpen(), [](const DS& state) {
-                       return state.getWho() == Who::HOME ? 1 : -1;
+                       return 1;
                        })
     },
     {
@@ -245,13 +246,13 @@ static const std::vector<std::pair<EvalScore, EvalFactor>> evaluators = {
         // First count the reserved, marking each reserved spot so that we
         // don't double count.
         std::make_pair(EvalAwayReserved(), [](const DS& state) {
-                       return state.getWho() == Who::HOME ? 0 : -2;
+                       return -2;
                        })
     },
     {
         // Then count the remaining open spots for HOME
         std::make_pair(EvalAwayOpen(), [](const DS& state) {
-                       return state.getWho() == Who::HOME ? -1 : 1;
+                       return -1;
                        })
     },
     {
