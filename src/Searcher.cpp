@@ -78,6 +78,7 @@ void Searcher::search_under(const Node& parent,
     // Use move-ordered children if possible
     if (parent.depth == 0 && ordered != ordered_moves.end()) {
         children = ordered->second;
+        ordered_moves.clear();
     }
     else {
         children = expand(parent, current_state);
@@ -92,15 +93,6 @@ void Searcher::search_under(const Node& parent,
         return;
     }
 
-    // The move that our opponent made (our starting point) is at depth 0. We
-    // make the best move at depth 1. Our opponent will make one of the moves
-    // at depth 2. Thus, we want to store the depth-3 children at depth 2,
-    // which will be our next moves, and move order them so that we maximize
-    // pruning.
-    if (parent.depth == 2) {
-        ordered_moves[current_state] = children;
-    }
-
     /*
      * Reset the score to POS_INF or NEG_INF depending on which team this node
      * belongs to.
@@ -113,7 +105,7 @@ void Searcher::search_under(const Node& parent,
     next_state.togglePlayer();
 
     // create a branch queue vector for every possible future root node
-    for (const Node& child : children) {
+    for (Node& child : children) {
         // Update board to simulate placing the child.
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
@@ -138,14 +130,23 @@ void Searcher::search_under(const Node& parent,
             ? result > current_best.score()
             : result < current_best.score();
         if (result_better || current_best.is_unset) {
-            current_best = std::move(child);
-            current_best.set_score(result);
+            child.set_score(result);
+            current_best = child;
 
             ab.update_if_needed(result, parent.team);
             if (ab.can_prune(result, parent.team)) {
                 return;
             }
         }
+    }
+
+    // The move that our opponent made (our starting point) is at depth 0. We
+    // make the best move at depth 1. Our opponent will make one of the moves
+    // at depth 2. Thus, we want to store the depth-3 children at depth 2,
+    // which will be our next moves, and move order them so that we maximize
+    // pruning.
+    if (parent.depth == 2) {
+        ordered_moves[current_state] = children;
     }
 
     return;
