@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(uccineers)
 
+set(CMAKE_CXX_FLAGS "-pthread")
+
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB COMMON_SOURCES "src/common/*.cpp")
 
