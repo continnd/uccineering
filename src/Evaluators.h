@@ -15,7 +15,7 @@ struct Evaluator {
 
     /**
      * Mark that's used to indicate that a grid is already checked.
-     * Note that the `clear_checked' method should be called after all
+     * Note that the `clear_marks' method should be called after all
      * operations are done so that there are no temporary marks on the board
      * after Searcher::evaluate exits.
      *
@@ -149,8 +149,8 @@ struct EvalHomeOpen : public Evaluator {
     score_t operator()(DS* state) const {
         score_t home_count = 0;
 
-        for (int c = 0; c < state->COLS; c++) {
-            for (int r = 0; r < state->ROWS; r++) {
+        for (int r = 0; r < state->ROWS; r++) {
+            for (int c = 0; c < state->COLS; c++) {
                 // Check if AWAY has reserved spot here
                 // Note: the method does boundary check
                 if (placable(r, c, r, c + 1, *state)) {
@@ -170,8 +170,8 @@ struct EvalAwayReserved : public Evaluator {
     score_t operator()(DS* state) const {
         score_t away_count = 0;
 
-        for (int c = 0; c < state->COLS; c++) {
-            for (int r = 0; r < state->ROWS; r++) {
+        for (int r = 0; r < state->ROWS; r++) {
+            for (int c = 0; c < state->COLS; c++) {
                 // Check if AWAY has reserved spot here
                 // Note: the method does boundary check
                 if (reserved_for_away(r, c, r + 1, c, *state)) {
