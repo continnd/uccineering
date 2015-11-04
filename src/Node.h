@@ -19,7 +19,7 @@ struct Node {
 
     Node(Who team, unsigned depth);
 
-    Node(Who team, unsigned depth, Location location);
+    Node(Who team, unsigned depth, Location parent_move);
 
     // Copy constructor
     Node(const Node& other);
@@ -102,7 +102,7 @@ struct Node {
     Who team;
     /* How deep it is in the search tree */
     unsigned depth;
-    Location location;
+    Location parent_move;
     /* True if node score is unset */
     bool is_unset;
 
@@ -145,12 +145,12 @@ inline bool Node::operator>(const Node& other) const {
 }
 
 inline bool Node::operator==(const Node& other) const {
-    return team == other.team && location == other.location
+    return team == other.team && parent_move == other.parent_move
         && depth == other.depth;
 }
 
 inline bool Node::operator!=(const Node& other) const {
-    return team != other.team || location != other.location
+    return team != other.team || parent_move != other.parent_move
         || depth != other.depth;
 }
 
@@ -159,7 +159,7 @@ namespace std {
     struct hash<Node> {
         size_t operator()(const Node& n) const {
             size_t t{std::hash<int>()(static_cast<int>(n.team))};
-            size_t l{std::hash<Location>()(n.location)};
+            size_t l{std::hash<Location>()(n.parent_move)};
             size_t d{std::hash<unsigned>()(n.depth)};
 
             return (((t << 1) ^ l) >> 1) ^ d;

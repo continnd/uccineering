@@ -87,6 +87,7 @@ void Searcher::search_under(const Node& parent,
 
     // `parent' is a terminal node
     if (children.empty()) {
+        current_best = parent;
         current_best.set_as_terminal();
         return;
     }
@@ -217,14 +218,14 @@ void Searcher::move_order(Who team) {
 void Searcher::tap(const Node& node, DomineeringState& state) {
     // To reflect the parent's team, flip the symbols
     char c = node.team == Who::HOME ? state.AWAYSYM : state.HOMESYM;
-    state.setCell(node.location.r1, node.location.c1, c);
-    state.setCell(node.location.r2, node.location.c2, c);
+    state.setCell(node.parent_move.r1, node.parent_move.c1, c);
+    state.setCell(node.parent_move.r2, node.parent_move.c2, c);
 }
 
 void Searcher::untap(const Node& node, DomineeringState& state) {
     char c = state.EMPTYSYM;
-    state.setCell(node.location.r1, node.location.c1, c);
-    state.setCell(node.location.r2, node.location.c2, c);
+    state.setCell(node.parent_move.r1, node.parent_move.c1, c);
+    state.setCell(node.parent_move.r2, node.parent_move.c2, c);
 }
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */

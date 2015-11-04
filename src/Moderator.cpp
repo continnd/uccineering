@@ -51,8 +51,8 @@ DomineeringMove Moderator::next_move(const DomineeringState& state) {
     // Set the starting node
     searcher.set_root(Node(state.getWho(), 0));
 
-    Node next_move = searcher.search(state, get_search_depth(state));
-    return next_move.location.to_move();
+    Node best_child = searcher.search(state, get_search_depth(state));
+    return best_child.parent_move.to_move();
 }
 
 Node Moderator::spawn_searcher(const Node& nodes) {
