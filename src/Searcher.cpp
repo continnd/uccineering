@@ -48,6 +48,7 @@ Searcher& Searcher::operator=(Searcher&& other) {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
+    // Initialize best moves
     best_moves.resize(depth_limit + 1);
     std::fill(best_moves.begin(), best_moves.end(), Node());
 
@@ -64,19 +65,20 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
         return evaluate(current_state);
     }
 
-    std::vector<Node> expanded;
-    auto exp = ordered_moves.find(current_state);
-    if (parent.depth == 0 && exp != ordered_moves.end()) {
-        expanded = exp->second;
+    std::vector<Node> children;
+    auto ordered = ordered_moves.find(current_state);
+    // Use move-ordered children if possible
+    if (parent.depth == 0 && ordered != ordered_moves.end()) {
+        children = ordered->second;
     }
     else {
-        expanded = expand(parent, current_state);
+        children = expand(parent, current_state);
     }
 
     Node& current_best = best_moves[parent.depth];
 
     // `parent' is a terminal node
-    if (expanded.empty()) {
+    if (children.empty()) {
         current_best.set_as_terminal();
         // POS_INF or NEG_INF
         return current_best.score();
@@ -94,7 +96,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
     next_state.togglePlayer();
 
     // create a branch queue vector for every possible future root node
-    for (const Node& child : expanded) {
+    for (const Node& child : children) {
         // Update board to simulate placing the child.
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
@@ -129,7 +131,6 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
             current_best.set_score(result);
 
             ab.update_if_needed(result, parent.team);
-
             if (ab.can_prune(result, parent.team)) {
                 break;
             }
@@ -137,11 +138,11 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
     }
 
     // The move that our opponent made is at depth 0. We make the best move at
-    // depth 1. Our opponent will make one of the moves expanded at depth 2.
-    // Thus, we want to store the children expanded at depth 2, which will be
+    // depth 1. Our opponent will make one of the moves children at depth 2.
+    // Thus, we want to store the children children at depth 2, which will be
     // our next moves, and move order them so that we maximize pruning.
     if (parent.depth == 2) {
-        ordered_moves[current_state] = expanded;
+        ordered_moves[current_state] = children;
     }
 
     return current_best.score();
