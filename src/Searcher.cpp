@@ -163,10 +163,20 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
     // that around to various evaluators
     DomineeringState state_copy{state};
     Evaluator::score_t total = 0;
-    for (auto&& p : evaluators) {
-        auto&& eval_func = p.first;
-        auto&& factor_func = p.second;
-        total += factor_func(state) * eval_func(&state_copy);
+
+    if (state.getWho() == Who::HOME) {
+        total = home_reserved(&state_copy)
+            + home_open(&state_copy);
+        clear_marks(&state_copy);
+        total -= away_open(&state_copy);
+    }
+    else {
+        total = away_reserved(&state_copy)
+            + away_open(&state_copy);
+        clear_marks(&state_copy);
+        total -= home_open(&state_copy);
+        // For AWAY, smaller the better
+        total *= -1;
     }
 
     return total;
