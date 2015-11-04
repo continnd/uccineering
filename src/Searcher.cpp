@@ -62,11 +62,15 @@ Node Searcher::search(const DomineeringState& state,
     return best_moves.front();
 }
 
-Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
-        const DomineeringState& current_state, const unsigned depth_limit) {
+void Searcher::search_under(const Node& parent,
+                            AlphaBeta ab,
+                            const DomineeringState& current_state,
+                            const unsigned depth_limit) {
     // Base case
     if (parent.depth >= depth_limit) {
-        return evaluate(current_state);
+        best_moves[parent.depth] = parent;
+        best_moves[parent.depth].set_score(evaluate(current_state));
+        return;
     }
 
     std::vector<Node> children;
@@ -84,11 +88,9 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
     // `parent' is a terminal node
     if (children.empty()) {
         current_best.set_as_terminal();
-        // POS_INF or NEG_INF
-        return current_best.score();
+        return;
     }
 
-    DomineeringState next_state(current_state);
     /*
      * Reset the score to POS_INF or NEG_INF depending on which team this node
      * belongs to.
@@ -97,6 +99,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
                            ? AlphaBeta::NEG_INF
                            : AlphaBeta::POS_INF);
 
+    DomineeringState next_state{current_state};
     next_state.togglePlayer();
 
     // create a branch queue vector for every possible future root node
@@ -105,27 +108,21 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
 
-        Evaluator::score_t result;
-        bool found;
+        // bool found;
         // Check for transpositions that were already explored
-        std::tie(result, found) = tp_table.check(next_state);
-        if (!found) {
+        // std::tie(result, found) = tp_table.check(next_state);
+        // if (!found) {
             // Recursive call
-            result = search_under(child, ab, next_state, depth_limit);
+            search_under(child, ab, next_state, depth_limit);
             // Add result to transposition table
-            tp_table.insert(next_state, result);
-        }
+        //     tp_table.insert(next_state, result);
+        // }
 
         // Rewind to board before placing the child
         untap(child, next_state);
 
-        // Found path to a terminal state
-        if (result == AlphaBeta::POS_INF || result == AlphaBeta::NEG_INF) {
-            current_best = std::move(child);
-            current_best.set_as_terminal();
-            // POS_INF or NEG_INF
-            return current_best.score();
-        }
+        const Node& next_move{best_moves[parent.depth + 1]};
+        const Evaluator::score_t result = next_move.score();
 
         bool result_better = parent.team == Who::HOME
             ? result > current_best.score()
@@ -136,7 +133,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
 
             ab.update_if_needed(result, parent.team);
             if (ab.can_prune(result, parent.team)) {
-                break;
+                return;
             }
         }
     }
@@ -149,7 +146,7 @@ Evaluator::score_t Searcher::search_under(const Node& parent, AlphaBeta ab,
         ordered_moves[current_state] = children;
     }
 
-    return current_best.score();
+    return;
 }
 
 Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
@@ -169,25 +166,28 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
 /* Private methods */
 
 std::vector<Node> Searcher::expand(const Node& parent,
-        const DomineeringState& state) {
-    // Player has been toggled already
-    Who my_team = state.getWho();
-    unsigned my_depth = parent.depth + 1;
+        const DomineeringState& current_state) {
+    // Toggle player
+    Who child_team = parent.team == Who::HOME ? Who::AWAY : Who::HOME;
+    unsigned child_depth = parent.depth + 1;
     std::vector<Node> children;
 
     // Create one instance and modify the values so that we don't have to
     // instantiate a ton of vectors in GameMove constructor.
-    DomineeringMove my_move(0, 0, 0, 0);
-    for (unsigned r1 = 0; r1 < state.ROWS; r1++) {
-        for (unsigned c1 = 0; c1 < state.COLS; c1++) {
+    DomineeringMove parent_move{0, 0, 0, 0};
+    for (unsigned r1 = 0; r1 < current_state.ROWS; r1++) {
+        for (unsigned c1 = 0; c1 < current_state.COLS; c1++) {
             // Home places horizontally, Away places vertically
-            unsigned r2 = my_team == Who::HOME ? r1 : r1 + 1;
-            unsigned c2 = my_team == Who::HOME ? c1 + 1 : c1;
+            unsigned r2 = parent.team == Who::HOME ? r1 : r1 + 1;
+            unsigned c2 = parent.team == Who::HOME ? c1 + 1 : c1;
 
-            my_move.setMv(r1, c1, r2, c2);
+            parent_move.setMv(r1, c1, r2, c2);
 
-            if (state.moveOK(my_move)) {
-                children.push_back(Node(my_team, my_depth, Location(my_move)));
+            if (current_state.moveOK(parent_move)) {
+                // Note: my_move is HOW I got to this state i.e. parent's move
+                children.push_back(Node(child_team,
+                                        child_depth,
+                                        Location(parent_move)));
             }
         }
     }
@@ -208,7 +208,8 @@ void Searcher::move_order(Who team) {
 }
 
 void Searcher::tap(const Node& node, DomineeringState& state) {
-    char c = node.team == Who::HOME ? state.HOMESYM : state.AWAYSYM;
+    // To reflect the parent's team, flip the symbols
+    char c = node.team == Who::HOME ? state.AWAYSYM : state.HOMESYM;
     state.setCell(node.location.r1, node.location.c1, c);
     state.setCell(node.location.r2, node.location.c2, c);
 }
