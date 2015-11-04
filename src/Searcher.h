@@ -64,8 +64,7 @@ public:
     Node search(const DomineeringState& state, const unsigned depth_limit);
 
     /**
-     * Searches under the given node and returns the best move for that
-     * branch.
+     * Searches under the given node.
      * This method populates the `best_moves' vector, so that the calling
      * method can look that up to find what the best move is for a certain
      * depth.
@@ -77,13 +76,11 @@ public:
      * \param[in] state current state of the game.
      *
      * \param[in] depth_limit the maximum depth to go down.
-     *
-     * \return the score that results from the best move.
      */
-    Evaluator::score_t search_under(const Node& parent,
-                                    AlphaBeta ab,
-                                    const DomineeringState& state,
-                                    const unsigned depth_limit);
+    void search_under(const Node& parent,
+                      AlphaBeta ab,
+                      const DomineeringState& state,
+                      const unsigned depth_limit);
 
     /**
      * Given a state (i.e. the current board), this method evaluates and gives
@@ -132,12 +129,16 @@ private:
      *
      * \param[in] parent the node to expand.
      *
-     * \param[in] current_state the state of the current game.
+     * \param[in] current_state the state of the current game. Children are
+     *                          expanded by placing the parent's team's
+     *                          dominoes onto current_state and checking if
+     *                          that is a valid move or not.
      *
-     * \return a vector of the expanded nodes.
+     * \return a vector of the expanded nodes. Note that the team of the nodes
+     *         is the opposite of the parent.
      */
     std::vector<Node> expand(const Node& parent,
-            const DomineeringState& current_state);
+                             const DomineeringState& current_state);
 
     /**
      * Does move ordering to the vectors of nodes stored as values in the
