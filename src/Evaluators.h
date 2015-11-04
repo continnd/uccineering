@@ -218,6 +218,8 @@ struct ClearMarks : public Evaluator {
     }
 };
 
+static const int RESERVED_FACTOR = 2;
+static const int OPEN_FACTOR = 1;
 /* Evaluators so that we don't have to instantiate every evaluation */
 static const EvalHomeReserved home_reserved;
 static const EvalHomeOpen home_open;
