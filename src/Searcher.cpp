@@ -127,6 +127,12 @@ void Searcher::search_under(const Node& parent,
         const Evaluator::score_t result = next_move.score();
         child.set_score(result);
 
+        if (next_move.is_terminal()) {
+            current_best = child;
+            current_best.set_as_terminal(next_state);
+            return;
+        }
+
         // The move that our opponent made (our starting point) is at depth 0.
         // We make the best move at depth 1. Our opponent will make one of the
         // moves at depth 2. Thus, we want to store the depth-3 children at
