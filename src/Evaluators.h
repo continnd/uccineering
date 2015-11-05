@@ -221,11 +221,11 @@ struct ClearMarks : public Evaluator {
 static const int RESERVED_FACTOR = 2;
 static const int OPEN_FACTOR = 1;
 /* Evaluators so that we don't have to instantiate every evaluation */
-static const EvalHomeReserved home_reserved;
-static const EvalHomeOpen home_open;
-static const EvalAwayReserved away_reserved;
-static const EvalAwayOpen away_open;
-static const ClearMarks clear_marks;
+static const EvalHomeReserved home_reserved = EvalHomeReserved();
+static const EvalHomeOpen home_open = EvalHomeOpen();
+static const EvalAwayReserved away_reserved = EvalAwayReserved();
+static const EvalAwayOpen away_open = EvalAwayOpen();
+static const ClearMarks clear_marks = ClearMarks();
 
 #endif /* end of include guard */
 
