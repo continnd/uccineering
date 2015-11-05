@@ -66,8 +66,7 @@ public:
     Node search(const DomineeringState& state, const unsigned depth_limit);
 
     /**
-     * Searches under the given node and returns the best move for that
-     * branch.
+     * Searches under the given node.
      * This method populates the `best_moves' vector, so that the calling
      * method can look that up to find what the best move is for a certain
      * depth.
@@ -79,11 +78,11 @@ public:
      * \param[in] state current state of the game.
      *
      * \param[in] depth_limit the maximum depth to go down.
-     *
-     * \return the score that results from the best move.
      */
-    double search_under(const Node& parent, AlphaBeta ab,
-            const DomineeringState& state, const unsigned depth_limit);
+    void search_under(const Node& parent,
+                      AlphaBeta ab,
+                      const DomineeringState& state,
+                      const unsigned depth_limit);
 
     /**
      * Given a state (i.e. the current board), this method evaluates and gives
@@ -94,7 +93,13 @@ public:
      *
      * \return the score.
      */
-    double evaluate(const DomineeringState& state);
+    Evaluator::score_t evaluate(const DomineeringState& state);
+
+    /**
+     * Does cleanup before the program exits.
+     * For example, it joins the threads that it spawned.
+     */
+    void cleanup();
 
 private:
     /**
@@ -137,34 +142,26 @@ private:
      *
      * \param[in] parent the node to expand.
      *
-     * \param[in] current_state the state of the current game.
+     * \param[in] current_state the state of the current game. Children are
+     *                          expanded by placing the parent's team's
+     *                          dominoes onto current_state and checking if
+     *                          that is a valid move or not.
      *
-     * \return a vector of the expanded nodes.
+     * \return a vector of the expanded nodes. Note that the team of the nodes
+     *         is the opposite of the parent.
      */
     std::vector<Node> expand(const Node& parent,
-            const DomineeringState& current_state);
-    
+                             const DomineeringState& current_state);
+
     /**
      * Does move ordering to the vectors of nodes stored as values in the
-     * `ordered_moves' unordered map member variable.  This method orders each
-     * of the vector elements in such a way that the most preferred move for
-     * `team' comes to the beginning of the vector.
-     * 
+     * `ordered_moves' unordered map member variable.
+     * This method orders each of the vector elements in such a way that the
+     * most preferred move for `team' comes to the beginning of the vector.
+     *
      * \param[in] team the team that we belong to.
      */
     void move_order(Who team);
-
-    /**
-     * Checks if further children nodes can be pruned or not.
-     *
-     * \param[in] node the node to be examined. If pruning is valid, all of
-     *                 its children are not searched.
-     *
-     * \param[in] ab the current alpha-beta values for this node.
-     *
-     * \return true if children nodes can be pruned, false otherwise.
-     */
-    bool can_prune(const Node& node, const AlphaBeta& ab);
 
     /**
      * Simulates the placing of a domino (i.e. move).

@@ -1,6 +1,7 @@
 #include "TranspositionTable.h"
 
 using TPT = TranspositionTable;
+using score_t = Evaluator::score_t;
 
 const std::string TPT::TP_FILE_NAME = "tp_table.bin";
 
@@ -39,14 +40,14 @@ void TPT::populate(std::ifstream& ifs) {
     // TODO: read from file the initial transposition table to use
 }
 
-std::pair<double, bool> TPT::check(const DomineeringState& state) {
+std::pair<score_t, bool> TPT::check(const DomineeringState& state) {
 #if 0
     auto it = table.find(state);
     if (it != table.end()) {
-        double score = it->second;
-        return std::make_pair<double, bool>(std::move(score), true);
+        score_t score = it->second;
+        return std::make_pair<score_t, bool>(std::move(score), true);
     }
-    return std::make_pair<double, bool>(0, false);
+    return std::make_pair<score_t, bool>(0, false);
 #else
     DomineeringState state_copy{state};
 
@@ -64,7 +65,7 @@ std::pair<double, bool> TPT::check(const DomineeringState& state) {
 #endif
 }
 
-void TPT::insert(DomineeringState& state, const double score) {
+void TPT::insert(DomineeringState& state, const score_t score) {
     if (table.size() > TPT::TP_MAX && TPT::TP_MAX != 0) {
         // TODO: erase
     }
@@ -83,22 +84,22 @@ void TPT::insert(DomineeringState& state, const double score) {
 
 /* Private methods */
 
-std::pair<double, bool> TPT::check_four_directions(DomineeringState& state) {
+std::pair<score_t, bool> TPT::check_four_directions(DomineeringState& state) {
     // Rotate and check
     for (unsigned i = 0; i < 4; i++) {
         auto it = table.find(state);
         if (it != table.end()) {
-            double score = it->second;
-            return std::make_pair<double, bool>(std::move(score), true);
+            score_t score = it->second;
+            return std::make_pair<score_t, bool>(std::move(score), true);
         }
         rotate_cw(state);
     }
 
     // No match
-    return std::make_pair<double, bool>(0, false);
+    return std::make_pair<score_t, bool>(0, false);
 }
 
-void TPT::add_four_directions(DomineeringState& state, const double score) {
+void TPT::add_four_directions(DomineeringState& state, const score_t score) {
     // Rotate and check
     for (unsigned i = 0; i < 4; i++) {
         table[state] = score;

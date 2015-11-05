@@ -86,7 +86,7 @@ public:
      * Called at the end of the tournament. Can be used to do
      * housekeeping tasks. Default behavior is to do nothing.
      */
-    inline void done() { }
+    virtual inline void done() { }
     
     /**
      * Used to compete the player in a tournament.

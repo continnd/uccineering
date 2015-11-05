@@ -48,6 +48,11 @@ public:
     void init() override;
 
     /**
+     * Does housekeeping stuff like joining threads.
+     */
+    void done() override;
+
+    /**
      * Uses the searcher to get the next move.
      *
      * \param[in] last_move the last move made by the opponent.
