@@ -164,7 +164,7 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
     DomineeringState state_copy{state};
     Evaluator::score_t total = 0;
 
-    if (state.getWho() == Who::HOME) {
+    if (root.team == Who::HOME) {
         total = RESERVED_FACTOR * home_reserved(&state_copy)
             + OPEN_FACTOR * home_open(&state_copy);
         clear_marks(&state_copy);
