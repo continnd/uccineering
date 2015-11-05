@@ -2,11 +2,13 @@
 #define MODERATOR_H_
 
 #include "Searcher.h"
+#include "TranspositionTable.h"
 
 #include "DomineeringMove.h"
 #include "GamePlayer.h"
 
 #include <algorithm>
+#include <fstream>
 #include <string>
 
 /**
@@ -32,13 +34,23 @@ public:
     Moderator(const Moderator& other);
 
     // Move constructor
-    Moderator(const Moderator&& other);
+    Moderator(Moderator&& other);
 
     // Destructor
     ~Moderator();
 
     // Assignment operator
     Moderator& operator=(const Moderator& other);
+
+    /**
+     * Reads in the file that contains the transposition table.
+     */
+    void init() override;
+
+    /**
+     * Does housekeeping stuff like joining threads.
+     */
+    void done() override;
 
     /**
      * Uses the searcher to get the next move.

@@ -19,7 +19,7 @@ Moderator::Moderator(const Moderator& other)
 {
 }
 
-Moderator::Moderator(const Moderator&& other)
+Moderator::Moderator(Moderator&& other)
     : team_name{std::move(other.team_name)}
     , searcher{std::move(other.searcher)}
     , GamePlayer(other.team_name, GAME_NAME)
@@ -37,12 +37,22 @@ Moderator& Moderator::operator=(const Moderator& other) {
 }
 /* }}} */
 
+void Moderator::init() {
+    std::string file_name = TranspositionTable::TP_FILE_NAME;
+    std::ifstream ifs{file_name, std::ios::in | std::ios::binary};
+    searcher = Searcher(ifs);
+}
+
+void Moderator::done() {
+    searcher.cleanup();
+}
+
 DomineeringMove Moderator::next_move(const DomineeringState& state) {
     // Set the starting node
     searcher.set_root(Node(state.getWho(), 0));
 
-    Node next_move = searcher.search(state, get_search_depth(state));
-    return next_move.location.to_move();
+    Node best_child = searcher.search(state, get_search_depth(state));
+    return best_child.parent_move.to_move();
 }
 
 Node Moderator::spawn_searcher(const Node& nodes) {
@@ -59,7 +69,7 @@ GameMove* Moderator::getMove(GameState& state, const std::string& last_move) {
 
 unsigned Moderator::get_search_depth(const DomineeringState& state) const {
     // TODO: Variable depth
-    return 3;
+    return 6;
 }
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */

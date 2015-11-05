@@ -38,9 +38,9 @@ public:
     
     BoardGameState& operator = (BoardGameState &&other);
     
-    bool operator==(const BoardGameState& other);
+    bool operator==(const BoardGameState& other) const;
 
-    bool operator!=(const BoardGameState& other);
+    bool operator!=(const BoardGameState& other) const;
 
     /**
      * check if a position is valid on the board
@@ -106,14 +106,14 @@ protected:
                    char awaySym, char emptySym);
 };
 
-inline bool BoardGameState::operator==(const BoardGameState& other) {
+inline bool BoardGameState::operator==(const BoardGameState& other) const {
     if (board.size() != other.board.size()) {
         return false;
     }
 
     for (size_t i = 0; i < board.size(); i++) {
-        if ((board[i] == EMPTYSYM || other.board[i] == EMPTYSYM)
-            && board[i] != other.board[i]) {
+        if ((board[i] == EMPTYSYM && other.board[i] != EMPTYSYM)
+            || (board[i] != EMPTYSYM && other.board[i] == EMPTYSYM)) {
             return false;
         }
     }
@@ -121,7 +121,7 @@ inline bool BoardGameState::operator==(const BoardGameState& other) {
     return true;
 }
 
-inline bool BoardGameState::operator!=(const BoardGameState& other) {
+inline bool BoardGameState::operator!=(const BoardGameState& other) const {
     return !(board == other.board);
 }
 

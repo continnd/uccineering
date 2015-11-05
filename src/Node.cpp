@@ -17,11 +17,11 @@ Node::Node(Who team, unsigned depth)
 {
 }
 
-Node::Node(Who team, unsigned depth, Location location)
+Node::Node(Who team, unsigned depth, Location parent_move)
     : team{team}
     , depth{depth}
     , score_{0}
-    , location{location}
+    , parent_move{parent_move}
     , is_unset{true}
     , is_terminal_{false}
 {
@@ -31,17 +31,17 @@ Node::Node(const Node& other)
     : team{other.team}
     , depth{other.depth}
     , score_{other.score_}
-    , location{other.location}
+    , parent_move{other.parent_move}
     , is_unset{other.is_unset}
     , is_terminal_{other.is_terminal_}
 {
 }
 
-Node::Node(const Node&& other)
+Node::Node(Node&& other)
     : team{other.team}
     , depth{other.depth}
     , score_{other.score_}
-    , location{std::move(other.location)}
+    , parent_move{std::move(other.parent_move)}
     , is_unset{other.is_unset}
     , is_terminal_{other.is_terminal_}
 {
@@ -54,7 +54,7 @@ Node& Node::operator=(const Node& other) {
     team = other.team;
     depth = other.depth;
     score_ = other.score_;
-    location = other.location;
+    parent_move = other.parent_move;
     is_unset = other.is_unset;
     is_terminal_ = other.is_terminal_;
 

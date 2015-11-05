@@ -6,9 +6,14 @@
 #include "Evaluators.h"
 #include "Location.h"
 #include "Node.h"
+#include "TranspositionTable.h"
 
 #include <algorithm>
+#include <fstream>
+#include <unordered_map>
 #include <vector>
+#include <unordered_map>
+#include <thread>
 
 /**
  * A class that performs alpha-beta search in the game of Domineering to find
@@ -20,17 +25,27 @@ public:
     // Default constructor
     Searcher();
 
+    /**
+     * Instantiates a searcher and read the transposition table from the given
+     * ifstream.
+     *
+     * \param[in] ifs the ifstream to read the transposition table from.
+     */
+    Searcher(std::ifstream& ifs);
+
     // Copy constructor
     Searcher(const Searcher& other);
 
     // Move constructor
-    Searcher(const Searcher&& other);
+    Searcher(Searcher&& other);
 
     // Destructor
     ~Searcher();
 
     // Assignment operator
     Searcher& operator=(const Searcher& other);
+
+    Searcher& operator=(Searcher&& other);
 
     /**
      * Gives a starting point to this searcher.
@@ -51,8 +66,7 @@ public:
     Node search(const DomineeringState& state, const unsigned depth_limit);
 
     /**
-     * Searches under the given node and returns the best move for that
-     * branch.
+     * Searches under the given node.
      * This method populates the `best_moves' vector, so that the calling
      * method can look that up to find what the best move is for a certain
      * depth.
@@ -64,11 +78,11 @@ public:
      * \param[in] state current state of the game.
      *
      * \param[in] depth_limit the maximum depth to go down.
-     *
-     * \return the score that results from the best move.
      */
-    double search_under(const Node& parent, AlphaBeta ab,
-            const DomineeringState& state, const unsigned depth_limit);
+    void search_under(const Node& parent,
+                      AlphaBeta ab,
+                      const DomineeringState& state,
+                      const unsigned depth_limit);
 
     /**
      * Given a state (i.e. the current board), this method evaluates and gives
@@ -79,13 +93,20 @@ public:
      *
      * \return the score.
      */
-    double evaluate(const DomineeringState& state);
+    Evaluator::score_t evaluate(const DomineeringState& state);
+
+    /**
+     * Does cleanup before the program exits.
+     * For example, it joins the threads that it spawned.
+     */
+    void cleanup();
 
 private:
     /**
      * The root of the search tree.
      */
     Node root;
+
     /**
      * A vector that contains the best moves for a certain depth.
      * For example, best_moves[1] contains the best move that can be executed
@@ -94,38 +115,53 @@ private:
     std::vector<Node> best_moves;
 
     /**
+     * A vectors of Nodes that will potentially be our next move.
+     * The idea is to reorder the Nodes in each vector so that the Nodes that
+     * can potentially maximize pruning will come towards the front of the
+     * list.
+     *
+     * Key: the state. Compared against the actual move that our opponent has
+     *      made, and use the appropriate set of children.
+     * Val: the possible children nodes, ordered by preference.
+     */
+    std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
+
+    /**
+     * Thread that is spawned to do move ordering during the opponents turn.
+     */
+    std::thread move_thread;
+
+    /**
+     * Transposition table that is used to find duplicates in board
+     * configurations.
+     */
+    TranspositionTable tp_table;
+
+    /**
      * Expands the given node for the next possible placement.
      *
      * \param[in] parent the node to expand.
      *
-     * \param[in] current_state the state of the current game.
+     * \param[in] current_state the state of the current game. Children are
+     *                          expanded by placing the parent's team's
+     *                          dominoes onto current_state and checking if
+     *                          that is a valid move or not.
      *
-     * \return a vector of the expanded nodes.
+     * \return a vector of the expanded nodes. Note that the team of the nodes
+     *         is the opposite of the parent.
      */
     std::vector<Node> expand(const Node& parent,
-            const DomineeringState& current_state);
+                             const DomineeringState& current_state);
 
     /**
-     * Does move ordering to the given vector of nodes.
-     * Modifies the vector given as the argument. This method orders the
-     * elements in such a way that the most preferred move comes to the
-     * beginning of the vector.
+     * Does move ordering to the vectors of nodes stored as values in the
+     * `ordered_moves' unordered map member variable.
+     * This method orders each of the vector elements in such a way that the
+     * most preferred move for `team' comes to the beginning of the vector.
      *
-     * \param[out] nodes the nodes to be reordered for optimal search.
+     * \param[in] team the team that we belong to.
      */
-    void move_order(std::vector<Node>& nodes);
-
-    /**
-     * Checks if further children nodes can be pruned or not.
-     *
-     * \param[in] node the node to be examined. If pruning is valid, all of
-     *                 its children are not searched.
-     *
-     * \param[in] ab the current alpha-beta values for this node.
-     *
-     * \return true if children nodes can be pruned, false otherwise.
-     */
-    bool can_prune(const Node& node, const AlphaBeta& ab);
+    void move_order(Who team);
 
     /**
      * Simulates the placing of a domino (i.e. move).
@@ -153,36 +189,6 @@ private:
 inline void Searcher::set_root(const Node& root) {
     this->root = root;
 }
-
-/**
- * Combine operation of two hash keys. Based on boost::hash_combine.
- */
-namespace {
-    void hash_combine(std::size_t& h, const std::size_t& v) {
-        h ^= v + 0x9e3779b9 + (h << 6) + (h >> 2);
-    }
-}
-
-/**
- * Hash function for DomineeringState.
- * Yes, it is so much more appropriate for this function to reside in
- * common/DomineeringState.h but since this file is part of the distributed code
- * base, I did not want to mess around with it.
- */
-namespace std {
-    template<>
-    struct hash<DomineeringState> {
-        size_t operator()(const DomineeringState& ds) const {
-            size_t h = 0;
-            for (auto&& c : *ds.getBoard1D()) {
-                if (c == ds.EMPTYSYM) {
-                    hash_combine(h, std::hash<char>()(c));
-                }
-            }
-            return h;
-        }
-    };
-} // namespace std
 
 #endif /* end of include guard */
 
