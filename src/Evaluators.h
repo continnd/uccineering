@@ -212,9 +212,8 @@ struct EvalAwayOpen : public Evaluator {
  * Housekeeping class that clears the marks indicated on the board.
  */
 struct ClearMarks : public Evaluator {
-    score_t operator()(DS* state) const {
+    void operator()(DS* state) const {
         clear_marks(*state);
-        return 0;
     }
 };
 
