@@ -133,15 +133,6 @@ void Searcher::search_under(const Node& parent,
             return;
         }
 
-        // The move that our opponent made (our starting point) is at depth 0.
-        // We make the best move at depth 1. Our opponent will make one of the
-        // moves at depth 2. Thus, we want to store the depth-3 children at
-        // depth 2, which will be our next moves, and move order them so that
-        // we maximize pruning.
-        if (parent.depth == 2) {
-            ordered_moves[current_state].push_back(child);
-        }
-
         bool result_better = parent.team == Who::HOME
             ? result > current_best.score()
             : result < current_best.score();
@@ -153,6 +144,16 @@ void Searcher::search_under(const Node& parent,
                 return;
             }
         }
+
+    }
+
+    // The move that our opponent made (our starting point) is at depth 0.  We
+    // make the best move at depth 1. Our opponent will make one of the moves
+    // at depth 2. Thus, we want to store the depth-3 children at depth 2,
+    // which will be our next moves, and move order them so that we maximize
+    // pruning.
+    if (parent.depth == 2) {
+        ordered_moves[current_state] = children;
     }
 
     return;
