@@ -18,24 +18,24 @@ class Timer {
     Timer() :
         t_start(-1),
         t_end(-1),
-        diff(-1)
-        time_left(-1)
+        diff(-1),
+        time_left(-1),
         moves_left(14)
     {
     }
     Timer(float tl) :
         t_start(-1),
         t_end(-1),
-        diff(-1)
-        time_left(tl)
+        diff(-1),
+        time_left(tl),
         moves_left(14)
     {
     }
     Timer(float tl, std::vector<std::vector<float>> pt) :
         t_start(-1),
         t_end(-1),
-        diff(-1)
-        time_left(tl)
+        diff(-1),
+        time_left(tl),
         moves_left(14)
     {
         predicted_times = std::move(pt);
@@ -46,7 +46,7 @@ class Timer {
     float get_time_left();
     int get_moves_left();
     float get_move_time();
-    int get_suggested_depth(int b, float time_allotted);
+    int get_suggested_depth(int b);
 };
 
 #endif
