@@ -163,22 +163,17 @@ Evaluator::score_t Searcher::evaluate(const DomineeringState& state) {
     // A copy of the state so that we can mark places temporarily and pass
     // that around to various evaluators
     DomineeringState state_copy{state};
-    Evaluator::score_t total = 0;
+    using score_t = Evaluator::score_t;
 
-    if (root.team == Who::HOME) {
-        total = RESERVED_FACTOR * home_reserved(&state_copy)
-            + OPEN_FACTOR * home_open(&state_copy);
-        clear_marks(&state_copy);
-        total -= away_open(&state_copy);
-    }
-    else {
-        total = home_open(&state_copy);
-        clear_marks(&state_copy);
-        total = total - RESERVED_FACTOR * away_reserved(&state_copy)
-            - OPEN_FACTOR * away_open(&state_copy);
-    }
+    score_t home_score = RESERVED_FACTOR * home_reserved(&state_copy)
+        + OPEN_FACTOR * home_open(&state_copy);
 
-    return total;
+    clear_marks(&state_copy);
+
+    score_t away_score = RESERVED_FACTOR * away_reserved(&state_copy)
+        + OPEN_FACTOR * away_open(&state_copy);
+
+    return home_score - away_score;
 }
 
 void Searcher::cleanup() {
