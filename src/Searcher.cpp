@@ -141,9 +141,7 @@ void Searcher::search_under(const Node& base,
         const Node& next_move{best_moves[base.depth + 1]};
 
         if (next_move.is_terminal()) {
-            current_best = child;
-            current_best.set_as_terminal(next_state);
-            return;
+            child.set_as_terminal(next_state);
         }
 
         current_best.update_limits(next_move);
