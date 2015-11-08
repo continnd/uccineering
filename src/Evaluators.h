@@ -191,8 +191,8 @@ struct EvalAwayOpen : public Evaluator {
     score_t operator()(DS* state) const {
         score_t away_count = 0;
 
-        for (int c = 0; c < state->COLS; c++) {
-            for (int r = 0; r < state->ROWS; r++) {
+        for (int r = 0; r < state->ROWS; r++) {
+            for (int c = 0; c < state->COLS; c++) {
                 // Check if AWAY has reserved spot here
                 // Note: the method does boundary check
                 if (placable(r, c, r + 1, c, *state)) {
@@ -212,9 +212,8 @@ struct EvalAwayOpen : public Evaluator {
  * Housekeeping class that clears the marks indicated on the board.
  */
 struct ClearMarks : public Evaluator {
-    score_t operator()(DS* state) const {
+    void operator()(DS* state) const {
         clear_marks(*state);
-        return 0;
     }
 };
 
