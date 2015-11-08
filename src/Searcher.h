@@ -55,6 +55,11 @@ public:
     void set_root(const Node& root);
 
     /**
+     * Does housekeeping stuff such as clearing the transposition table.
+     */
+    void reset();
+
+    /**
      * Searches for moves until it reaches the given depth.
      *
      * \param[in] state current state of the game configuration.
@@ -71,7 +76,7 @@ public:
      * method can look that up to find what the best move is for a certain
      * depth.
      *
-     * \param[in] parent the node to search under.
+     * \param[in] base the node to search under.
      *
      * \param[in] ab the alpha and beta values. Passed by value.
      *
@@ -79,7 +84,7 @@ public:
      *
      * \param[in] depth_limit the maximum depth to go down.
      */
-    void search_under(const Node& parent,
+    void search_under(const Node& base,
                       AlphaBeta ab,
                       const DomineeringState& state,
                       const unsigned depth_limit);
@@ -140,17 +145,17 @@ private:
     /**
      * Expands the given node for the next possible placement.
      *
-     * \param[in] parent the node to expand.
+     * \param[in] base the node to expand.
      *
      * \param[in] current_state the state of the current game. Children are
-     *                          expanded by placing the parent's team's
+     *                          expanded by placing the base's team's
      *                          dominoes onto current_state and checking if
      *                          that is a valid move or not.
      *
      * \return a vector of the expanded nodes. Note that the team of the nodes
-     *         is the opposite of the parent.
+     *         is the opposite of the base.
      */
-    std::vector<Node> expand(const Node& parent,
+    std::vector<Node> expand(const Node& base,
                              const DomineeringState& current_state);
 
     /**

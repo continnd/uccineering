@@ -5,7 +5,6 @@ Searcher::Searcher() {
 }
 
 Searcher::Searcher(std::ifstream& ifs) {
-    tp_table.populate(ifs);
 }
 
 Searcher::Searcher(const Searcher& other)
@@ -46,6 +45,10 @@ Searcher& Searcher::operator=(Searcher&& other) {
 }
 /* }}} */
 
+void Searcher::reset() {
+    tp_table.clear();
+}
+
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
     if (move_thread.joinable()) {
@@ -56,39 +59,59 @@ Node Searcher::search(const DomineeringState& state,
     std::fill(best_moves.begin(), best_moves.end(), Node());
 
     AlphaBeta ab(AlphaBeta::NEG_INF, AlphaBeta::POS_INF);
+    // Remove all the useless information currently stored in the table
+    tp_table.clear();
     search_under(root, ab, state, depth_limit);
     move_thread = std::thread(&Searcher::move_order, this, root.team);
 
     return best_moves.front();
 }
 
-void Searcher::search_under(const Node& parent,
+void Searcher::search_under(const Node& base,
                             AlphaBeta ab,
                             const DomineeringState& current_state,
                             const unsigned depth_limit) {
+    Node& current_best = best_moves[base.depth];
+
     // Base case
-    if (parent.depth >= depth_limit) {
-        best_moves[parent.depth] = parent;
-        best_moves[parent.depth].set_score(evaluate(current_state));
+    if (base.depth >= depth_limit) {
+        current_best = base;
+        current_best.set_score(evaluate(current_state));
+        current_best.lower_limit = current_best.score();
+        current_best.upper_limit = current_best.score();
+        return;
+    }
+
+    // Check for transpositions that were already explored
+    bool found;
+    TranspositionTable::Entry entry;
+    std::tie(entry, found) = tp_table.check(current_state);
+    if (found && ab.can_prune(entry, base.team)) {
+        // Set score to the best value possible in our sub tree so that we get
+        // chosen by the parent, but that won't happen because there already
+        // is a better value somewhere in another sub tree.
+        current_best.set_score(base.team == Who::HOME
+                               ? entry.lower_limit
+                               : entry.upper_limit);
+        current_best.lower_limit = entry.lower_limit;
+        current_best.upper_limit = entry.upper_limit;
         return;
     }
 
     std::vector<Node> children;
-    auto ordered = ordered_moves.find(current_state);
+    // auto ordered = ordered_moves.find(current_state);
     // Use move-ordered children if possible
-    if (parent.depth == 0 && ordered != ordered_moves.end()) {
-        children = ordered->second;
-        ordered_moves.clear();
-    }
-    else {
-        children = expand(parent, current_state);
-    }
+    // if (base.depth == 0 && ordered != ordered_moves.end()) {
+    //     children = ordered->second;
+    //     ordered_moves.clear();
+    // }
+    // else {
+        children = expand(base, current_state);
+    // }
 
-    Node& current_best = best_moves[parent.depth];
-
-    // `parent' is a terminal node
+    // `base' is a terminal node
     if (children.empty()) {
-        current_best = parent;
+        current_best = base;
         current_best.set_as_terminal(current_state);
         return;
     }
@@ -97,35 +120,25 @@ void Searcher::search_under(const Node& parent,
      * Reset the score to POS_INF or NEG_INF depending on which team this node
      * belongs to.
      */
-    current_best.set_score(parent.team == Who::HOME
+    current_best.set_score(base.team == Who::HOME
                            ? AlphaBeta::NEG_INF
                            : AlphaBeta::POS_INF);
 
     DomineeringState next_state{current_state};
     next_state.togglePlayer();
 
-    // create a branch queue vector for every possible future root node
     for (Node& child : children) {
         // Update board to simulate placing the child.
         // Done so that we don't need to make a copy of state for each child.
         tap(child, next_state);
 
-        // bool found;
-        // Check for transpositions that were already explored
-        // std::tie(result, found) = tp_table.check(next_state);
-        // if (!found) {
-            // Recursive call
-            search_under(child, ab, next_state, depth_limit);
-            // Add result to transposition table
-        //     tp_table.insert(next_state, result);
-        // }
+        // Recursive call
+        search_under(child, ab, next_state, depth_limit);
 
         // Rewind to board before placing the child
         untap(child, next_state);
 
-        const Node& next_move{best_moves[parent.depth + 1]};
-        const Evaluator::score_t result = next_move.score();
-        child.set_score(result);
+        const Node& next_move{best_moves[base.depth + 1]};
 
         if (next_move.is_terminal()) {
             current_best = child;
@@ -133,26 +146,43 @@ void Searcher::search_under(const Node& parent,
             return;
         }
 
-        bool result_better = parent.team == Who::HOME
-            ? result > current_best.score()
-            : result < current_best.score();
+        current_best.update_limits(next_move);
+        current_best.descentdants_searched += next_move.descentdants_searched;
+
+        child.set_score(next_move.score());
+        bool result_better = base.team == Who::HOME
+            ? child.score() > current_best.score()
+            : child.score() < current_best.score();
         if (result_better || current_best.is_unset) {
             current_best = child;
 
-            ab.update_if_needed(result, parent.team);
-            if (ab.can_prune(result, parent.team)) {
+            ab.update_if_needed(child.score(), base.team);
+            if (ab.can_prune(child.score(), base.team)) {
+                // Add result to transposition table
+                tp_table.insert(current_state,
+                                current_best.lower_limit,
+                                current_best.upper_limit,
+                                current_best.descentdants_searched);
                 return;
             }
         }
-
     }
+
+    // Set true score since there was no pruning
+    current_best.lower_limit = current_best.score();
+    current_best.upper_limit = current_best.score();
+    // Add result to transposition table
+    tp_table.insert(current_state,
+                    current_best.lower_limit,
+                    current_best.upper_limit,
+                    current_best.descentdants_searched);
 
     // The move that our opponent made (our starting point) is at depth 0.  We
     // make the best move at depth 1. Our opponent will make one of the moves
     // at depth 2. Thus, we want to store the depth-3 children at depth 2,
     // which will be our next moves, and move order them so that we maximize
     // pruning.
-    if (parent.depth == 2) {
+    if (base.depth == 2) {
         ordered_moves[current_state] = children;
     }
 
@@ -184,11 +214,11 @@ void Searcher::cleanup() {
 
 /* Private methods */
 
-std::vector<Node> Searcher::expand(const Node& parent,
+std::vector<Node> Searcher::expand(const Node& base,
         const DomineeringState& current_state) {
     // Toggle player
-    Who child_team = parent.team == Who::HOME ? Who::AWAY : Who::HOME;
-    unsigned child_depth = parent.depth + 1;
+    Who child_team = base.team == Who::HOME ? Who::AWAY : Who::HOME;
+    unsigned child_depth = base.depth + 1;
     std::vector<Node> children;
 
     // Create one instance and modify the values so that we don't have to
@@ -197,13 +227,13 @@ std::vector<Node> Searcher::expand(const Node& parent,
     for (unsigned r1 = 0; r1 < current_state.ROWS; r1++) {
         for (unsigned c1 = 0; c1 < current_state.COLS; c1++) {
             // Home places horizontally, Away places vertically
-            unsigned r2 = parent.team == Who::HOME ? r1 : r1 + 1;
-            unsigned c2 = parent.team == Who::HOME ? c1 + 1 : c1;
+            unsigned r2 = base.team == Who::HOME ? r1 : r1 + 1;
+            unsigned c2 = base.team == Who::HOME ? c1 + 1 : c1;
 
             parent_move.setMv(r1, c1, r2, c2);
 
             if (current_state.moveOK(parent_move)) {
-                // Note: my_move is HOW I got to this state i.e. parent's move
+                // Note: my_move is HOW I got to this state i.e. base's move
                 children.push_back(Node(child_team,
                                         child_depth,
                                         Location(parent_move)));
@@ -227,7 +257,7 @@ void Searcher::move_order(Who team) {
 }
 
 void Searcher::tap(const Node& node, DomineeringState& state) {
-    // To reflect the parent's team, flip the symbols
+    // To reflect the base's team, flip the symbols
     char c = node.team == Who::HOME ? state.AWAYSYM : state.HOMESYM;
     state.setCell(node.parent_move.r1, node.parent_move.c1, c);
     state.setCell(node.parent_move.r2, node.parent_move.c2, c);

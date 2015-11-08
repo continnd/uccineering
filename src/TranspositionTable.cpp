@@ -3,7 +3,47 @@
 using TPT = TranspositionTable;
 using score_t = Evaluator::score_t;
 
-const std::string TPT::TP_FILE_NAME = "tp_table.bin";
+/* Constructors for TranspositionTable::Entry {{{ */
+TPT::Entry::Entry()
+    : lower_limit{0}
+    , upper_limit{0}
+    , nodes_searched{0}
+{ }
+
+TPT::Entry::Entry(const score_t lower_limit,
+                  const score_t upper_limit,
+                  const long unsigned nodes_searched)
+    : lower_limit{lower_limit}
+    , upper_limit{upper_limit}
+    , nodes_searched{nodes_searched}
+{ }
+
+TPT::Entry::Entry(const TPT::Entry& other)
+    : lower_limit{other.lower_limit}
+    , upper_limit{other.upper_limit}
+    , nodes_searched{other.nodes_searched}
+{ }
+
+TPT::Entry::Entry(TPT::Entry&& other)
+    : lower_limit{std::move(other.lower_limit)}
+    , upper_limit{std::move(other.upper_limit)}
+    , nodes_searched{std::move(other.nodes_searched)}
+{ }
+
+TPT::Entry& TPT::Entry::operator=(const Entry& other) {
+    lower_limit = other.lower_limit;
+    upper_limit = other.upper_limit;
+    nodes_searched = other.nodes_searched;
+    return *this;
+}
+
+TPT::Entry& TPT::Entry::operator=(Entry&& other) {
+    lower_limit = std::move(other.lower_limit);
+    upper_limit = std::move(other.upper_limit);
+    nodes_searched = std::move(other.nodes_searched);
+    return *this;
+}
+/* }}} */
 
 /* Constructors, Destructor, and Assignment operator {{{ */
 // Default constructor
@@ -36,18 +76,13 @@ TPT& TPT::operator=(TPT&& other) {
 }
 /* }}} */
 
-void TPT::populate(std::ifstream& ifs) {
-    // TODO: read from file the initial transposition table to use
-}
-
-std::pair<score_t, bool> TPT::check(const DomineeringState& state) {
-#if 0
+std::pair<TPT::Entry, bool> TPT::check(const DomineeringState& state) {
+#if 1
     auto it = table.find(state);
     if (it != table.end()) {
-        score_t score = it->second;
-        return std::make_pair<score_t, bool>(std::move(score), true);
+        return std::make_pair(it->second, true);
     }
-    return std::make_pair<score_t, bool>(0, false);
+    return std::make_pair(Entry(), false);
 #else
     DomineeringState state_copy{state};
 
@@ -65,46 +100,57 @@ std::pair<score_t, bool> TPT::check(const DomineeringState& state) {
 #endif
 }
 
-void TPT::insert(DomineeringState& state, const score_t score) {
+void TPT::shrink() {
+    // Key-Value type
+    using k_v_t = std::pair<
+        decltype(table)::key_type,
+        decltype(table)::mapped_type
+    >;
+    // Move all entries into a vector and sort
+    std::vector<k_v_t> tmp;
+    tmp.resize(table.size());
+    std::move(table.begin(), table.end(), tmp.begin());
+    // Sort so that the largest nodes_searched comes first
+    std::sort(tmp.begin(), tmp.end(), [](const k_v_t& a, const k_v_t& b) {
+              return a.second.nodes_searched > b.second.nodes_searched;
+              });
+    // Shrink and destroy entries
+    tmp.resize(TP_MAX * SHRINK_RATE);
+    // Them move them back to the table
+    for (auto&& p : std::move(tmp)) {
+        table.insert(p);
+    }
+}
+
+void TPT::insert(const DomineeringState& state,
+                 const score_t lower_limit,
+                 const score_t upper_limit,
+                 const long unsigned nodes_searched) {
+    // Check table size first
     if (table.size() > TPT::TP_MAX && TPT::TP_MAX != 0) {
-        // TODO: erase
+        shrink();
     }
     else {
-#if 1
-        table[state] = score;
-#else
-        add_four_directions(state, score);
-        flip_vertical(state);
-        add_four_directions(state, score);
-        // Back to the original position
-        flip_vertical(state);
-#endif
+        table[state] = Entry(lower_limit, upper_limit, nodes_searched);
     }
 }
 
 /* Private methods */
 
-std::pair<score_t, bool> TPT::check_four_directions(DomineeringState& state) {
+std::pair<TPT::Entry, bool>
+TPT::check_four_directions(DomineeringState& state) {
     // Rotate and check
     for (unsigned i = 0; i < 4; i++) {
         auto it = table.find(state);
         if (it != table.end()) {
-            score_t score = it->second;
-            return std::make_pair<score_t, bool>(std::move(score), true);
+            Entry& entry = it->second;
+            return std::make_pair(std::move(entry), true);
         }
         rotate_cw(state);
     }
 
     // No match
-    return std::make_pair<score_t, bool>(0, false);
-}
-
-void TPT::add_four_directions(DomineeringState& state, const score_t score) {
-    // Rotate and check
-    for (unsigned i = 0; i < 4; i++) {
-        table[state] = score;
-        rotate_cw(state);
-    }
+    return std::make_pair(Entry(), false);
 }
 
 void TPT::flip_vertical(DomineeringState& state) {
