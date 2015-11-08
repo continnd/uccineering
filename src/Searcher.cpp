@@ -143,11 +143,13 @@ void Searcher::search_under(const Node& base,
         if (next_move.is_terminal()) {
             child.set_as_terminal(next_state);
         }
+        else {
+            child.set_score(next_move.score());
+        }
 
         current_best.update_limits(next_move);
         current_best.descentdants_searched += next_move.descentdants_searched;
 
-        child.set_score(next_move.score());
         bool result_better = base.team == Who::HOME
             ? child.score() > current_best.score()
             : child.score() < current_best.score();
