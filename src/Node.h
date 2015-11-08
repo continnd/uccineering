@@ -101,7 +101,15 @@ struct Node {
      */
     void set_as_terminal(DomineeringState state);
 
-    void update_ab(AlphaBeta* const ab) const;
+    /**
+     * Updates the lower limit and/or upper limit of the scores depending on
+     * how good the next move is.
+     * These limits are used in the transposition table to narrow down the
+     * range of scores that result from searching the children nodes.
+     *
+     * \param[in] next_move the next move (i.e. one of this node's children).
+     */
+    void update_limits(const Node& next_move);
 
 
     /* Team of this node. Min or Max. */
@@ -111,6 +119,10 @@ struct Node {
     Location parent_move;
     /* True if node score is unset */
     bool is_unset;
+    /* Guaranteed limits. Used in transposition table */
+    score_t lower_limit, upper_limit;
+    /* Number of descendants searched under this node */
+    long unsigned descentdants_searched;
 
 private:
     Evaluator::score_t score_;
@@ -143,6 +155,17 @@ inline void Node::set_as_terminal(DomineeringState state) {
     }
     else if (status == Status::AWAY_WIN) {
         set_score(AlphaBeta::NEG_INF);
+    }
+}
+
+inline void Node::update_limits(const Node& next_move) {
+    if (team == Who::HOME) {
+        lower_limit = std::max(next_move.lower_limit, lower_limit);
+        upper_limit = std::max(next_move.upper_limit, upper_limit);
+    }
+    else {
+        lower_limit = std::min(next_move.lower_limit, lower_limit);
+        upper_limit = std::min(next_move.upper_limit, upper_limit);
     }
 }
 
