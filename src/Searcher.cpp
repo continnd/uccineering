@@ -180,9 +180,9 @@ void Searcher::search_under(const Node& base,
     // at depth 2. Thus, we want to store the depth-3 children at depth 2,
     // which will be our next moves, and move order them so that we maximize
     // pruning.
-    if (base.depth == 2) {
-        ordered_moves[current_state] = children;
-    }
+    // if (parent.depth == 2) {
+    //     ordered_moves[current_state] = children;
+    // }
 
     return;
 }

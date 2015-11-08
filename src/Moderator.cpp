@@ -73,7 +73,10 @@ unsigned Moderator::get_search_depth(const DomineeringState& state) const {
     if (game_moves <= 4) {
         depth = 4;
     }
-    else if (game_moves > 13) {
+    else if (game_moves >= 16) {
+        depth = 10;
+    }
+    else if (game_moves >= 14) {
         depth = 8;
     }
     else {
