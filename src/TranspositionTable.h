@@ -136,10 +136,11 @@ private:
     table_t table;
 
     /**
-     * Checks if state is in the transposition table for all four direction by
-     * rotating.
+     * Flips the board horizontally (along the x-axis).
+     *
+     * \param[out] state the state to be flipped.
      */
-    std::pair<Entry, bool> check_four_directions(DomineeringState& state);
+    void flip_horizontal(DomineeringState& state);
 
     /**
      * Flips the board vertically (along the y-axis).
