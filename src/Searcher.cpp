@@ -74,15 +74,15 @@ void Searcher::search_under(const Node& parent,
     }
 
     std::vector<Node> children;
-    auto ordered = ordered_moves.find(current_state);
+    // auto ordered = ordered_moves.find(current_state);
     // Use move-ordered children if possible
-    if (parent.depth == 0 && ordered != ordered_moves.end()) {
-        children = ordered->second;
-        ordered_moves.clear();
-    }
-    else {
+    // if (parent.depth == 0 && ordered != ordered_moves.end()) {
+    //     children = ordered->second;
+    //     ordered_moves.clear();
+    // }
+    // else {
         children = expand(parent, current_state);
-    }
+    // }
 
     Node& current_best = best_moves[parent.depth];
 
@@ -152,9 +152,9 @@ void Searcher::search_under(const Node& parent,
     // at depth 2. Thus, we want to store the depth-3 children at depth 2,
     // which will be our next moves, and move order them so that we maximize
     // pruning.
-    if (parent.depth == 2) {
-        ordered_moves[current_state] = children;
-    }
+    // if (parent.depth == 2) {
+    //     ordered_moves[current_state] = children;
+    // }
 
     return;
 }
