@@ -3,6 +3,7 @@
 
 #include "Evaluators.h"
 #include "GameState.h"
+#include "TranspositionTable.h"
 
 #include <limits>
 #include <algorithm>
@@ -32,6 +33,8 @@ struct AlphaBeta {
 
     AlphaBeta& operator=(const AlphaBeta& other);
 
+    AlphaBeta& operator=(AlphaBeta&& other);
+
     /**
      * Updates the alpha or beta according to the team.
      * If the team is HOME then alpha is updated, otherwise, AWAY is updated.
@@ -54,7 +57,14 @@ struct AlphaBeta {
      *
      * \return true if children nodes can be pruned, false otherwise.
      */
-    bool can_prune(const score_t score, const Who team);
+    bool can_prune(const score_t score, const Who team) const;
+
+    /**
+     * Checks if children can be pruned or not by looking at the range given
+     * in the transposition table.
+     */
+    bool can_prune(const TranspositionTable::Entry& entry,
+                   const Who team) const;
 
     /**
      * alpha = best max/home score
@@ -69,6 +79,12 @@ inline AlphaBeta& AlphaBeta::operator=(const AlphaBeta& other) {
     return *this;
 }
 
+inline AlphaBeta& AlphaBeta::operator=(AlphaBeta&& other) {
+    alpha = std::move(other.alpha);
+    beta = std::move(other.beta);
+    return *this;
+}
+
 inline void AlphaBeta::update_if_needed(const score_t score, const Who team) {
     if (team == Who::HOME) {
         alpha = std::max(score, alpha);
@@ -78,10 +94,17 @@ inline void AlphaBeta::update_if_needed(const score_t score, const Who team) {
     }
 }
 
-inline bool AlphaBeta::can_prune(const score_t score, const Who team) {
+inline bool AlphaBeta::can_prune(const score_t score, const Who team) const {
     return team == Who::HOME
         ? score >= beta || score == POS_INF
         : score <= alpha || score == NEG_INF;
+}
+
+inline bool AlphaBeta::can_prune(const TranspositionTable::Entry& entry,
+                                 const Who team) const {
+    return team == Who::HOME
+        ? beta <= entry.lower_limit
+        : alpha >= entry.upper_limit;
 }
 
 #endif /* end of include guard */

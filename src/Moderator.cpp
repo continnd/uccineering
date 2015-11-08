@@ -38,9 +38,7 @@ Moderator& Moderator::operator=(const Moderator& other) {
 /* }}} */
 
 void Moderator::init() {
-    std::string file_name = TranspositionTable::TP_FILE_NAME;
-    std::ifstream ifs{file_name, std::ios::in | std::ios::binary};
-    searcher = Searcher(ifs);
+    // Do nothing
 }
 
 void Moderator::done() {
@@ -68,8 +66,20 @@ GameMove* Moderator::getMove(GameState& state, const std::string& last_move) {
 /* Private methods */
 
 unsigned Moderator::get_search_depth(const DomineeringState& state) const {
-    // TODO: Variable depth
-    return 6;
+    unsigned game_moves = state.getNumMoves();
+    unsigned depth;
+
+    // The first four moves are not worth searching deep
+    if (game_moves <= 4) {
+        depth = 4;
+    }
+    else if (game_moves > 13) {
+        depth = 8;
+    }
+    else {
+        depth = 6;
+    }
+    return depth;
 }
 
 /* vim: tw=78:et:ts=4:sts=4:sw=4 */
