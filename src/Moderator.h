@@ -62,16 +62,6 @@ public:
      */
     DomineeringMove next_move(const DomineeringState& last_move);
 
-    /**
-     * Spawns a new searcher that helps search on different threads.
-     * TODO
-     *
-     * \param[in] node the nodes for each thread to search on.
-     *
-     * \return the best-move node found by the worker searcher.
-     */
-    Node spawn_searcher(const Node& nodes);
-
     GameMove* getMove(GameState& state,
             const std::string& last_move) override;
 

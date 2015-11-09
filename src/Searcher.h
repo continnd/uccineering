@@ -106,6 +106,7 @@ public:
      * For example, it joins the threads that it spawned.
      */
     void cleanup();
+
     float get_time_left() const { return timer.get_time_left(); }
 
 private:
@@ -147,7 +148,6 @@ private:
 
     Who last_team = Who::HOME;
 
-    
     /**
      * Expands the given node for the next possible placement.
      *
@@ -163,16 +163,6 @@ private:
      */
     std::vector<Node> expand(const Node& base,
                              const DomineeringState& current_state);
-
-    /**
-     * Does move ordering to the vectors of nodes stored as values in the
-     * `ordered_moves' unordered map member variable.
-     * This method orders each of the vector elements in such a way that the
-     * most preferred move for `team' comes to the beginning of the vector.
-     *
-     * \param[in] team the team that we belong to.
-     */
-    void move_order(Who team);
 
     /**
      * Simulates the placing of a domino (i.e. move).
