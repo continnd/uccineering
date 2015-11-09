@@ -69,18 +69,22 @@ unsigned Moderator::get_search_depth(const DomineeringState& state) const {
     unsigned game_moves = state.getNumMoves();
     unsigned depth;
 
+    if (searcher.get_time_left() > 20.0) {
     // The first four moves are not worth searching deep
-    if (game_moves <= 4) {
+        if (game_moves <= 4) {
+            depth = 4;
+        }
+        else if (game_moves >= 16) {
+            depth = 10;
+        }
+        else if (game_moves >= 14) {
+            depth = 8;
+        }
+        else {
+            depth = 6;
+        }
+    } else {
         depth = 4;
-    }
-    else if (game_moves >= 16) {
-        depth = 10;
-    }
-    else if (game_moves >= 14) {
-        depth = 8;
-    }
-    else {
-        depth = 6;
     }
     return depth;
 }

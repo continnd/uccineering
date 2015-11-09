@@ -1,11 +1,13 @@
 #include "Searcher.h"
-#include <iostream>
+#include "GamePlayer.h"
 
 /* Constructors, destructor, and assignment operator {{{ */
 Searcher::Searcher() {
+    timer = Timer(240);
 }
 
 Searcher::Searcher(std::ifstream& ifs) {
+    timer = Timer(240);
 }
 
 Searcher::Searcher(const Searcher& other)
@@ -56,6 +58,10 @@ void Searcher::reset() {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
+    if (root.team != last_team) {
+        last_team = root.team;
+        timer = Timer(240);
+    }
 
     timer.click();
 
@@ -74,12 +80,6 @@ Node Searcher::search(const DomineeringState& state,
 
     timer.click();
 
-    std::cout << timer.get_time() << std::endl;
-    std::cout << timer.get_lapse_time() << std::endl;
-//    timer = timer + timer.get_time();
-
-    std::cout << "timer" << std::endl;
-    std::cout << timer.get_time() << std::endl;
     return best_moves.front();
 }
 

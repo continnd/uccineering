@@ -106,8 +106,10 @@ public:
      * For example, it joins the threads that it spawned.
      */
     void cleanup();
+    float get_time_left() const { return timer.get_time_left(); }
 
 private:
+    Timer timer;
     /**
      * The root of the search tree.
      */
@@ -143,8 +145,9 @@ private:
      */
     TranspositionTable tp_table;
 
-    Timer timer;
+    Who last_team = Who::HOME;
 
+    
     /**
      * Expands the given node for the next possible placement.
      *

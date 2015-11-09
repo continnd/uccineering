@@ -43,7 +43,7 @@ class Timer {
     ~Timer() {}
     void click();
     float get_time();
-    float get_time_left();
+    float get_time_left() const;
     int get_moves_left();
     float get_move_time();
     int get_suggested_depth(int b);
