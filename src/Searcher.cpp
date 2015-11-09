@@ -2,9 +2,11 @@
 
 /* Constructors, destructor, and assignment operator {{{ */
 Searcher::Searcher() {
+    timer = Timer(240);
 }
 
 Searcher::Searcher(std::ifstream& ifs) {
+    timer = Timer(240);
 }
 
 Searcher::Searcher(const Searcher& other)
@@ -12,6 +14,7 @@ Searcher::Searcher(const Searcher& other)
     , best_moves{other.best_moves}
     , ordered_moves{other.ordered_moves}
     , tp_table{other.tp_table}
+    , timer{other.timer}
 {
 }
 
@@ -20,6 +23,7 @@ Searcher::Searcher(Searcher&& other)
     , best_moves{std::move(other.best_moves)}
     , ordered_moves{std::move(other.ordered_moves)}
     , tp_table{std::move(other.tp_table)}
+    , timer{std::move(other.timer)}
 {
 }
 
@@ -31,6 +35,7 @@ Searcher& Searcher::operator=(const Searcher& other) {
     best_moves = other.best_moves;
     ordered_moves = other.ordered_moves;
     tp_table = other.tp_table;
+    timer = other.timer;
 
     return *this;
 }
@@ -40,6 +45,7 @@ Searcher& Searcher::operator=(Searcher&& other) {
     best_moves = std::move(other.best_moves);
     ordered_moves = std::move(other.ordered_moves);
     tp_table = std::move(other.tp_table);
+    timer = std::move(other.timer);
 
     return *this;
 }
@@ -51,6 +57,13 @@ void Searcher::reset() {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
+    if (root.team != last_team) {
+        last_team = root.team;
+        timer = Timer(240);
+    }
+
+    timer.click();
+
     if (move_thread.joinable()) {
         move_thread.join();
     }
@@ -62,7 +75,8 @@ Node Searcher::search(const DomineeringState& state,
     // Remove all the useless information currently stored in the table
     tp_table.clear();
     search_under(root, ab, state, depth_limit);
-    move_thread = std::thread(&Searcher::move_order, this, root.team);
+
+    timer.click();
 
     return best_moves.front();
 }
@@ -99,15 +113,7 @@ void Searcher::search_under(const Node& base,
     }
 
     std::vector<Node> children;
-    // auto ordered = ordered_moves.find(current_state);
-    // Use move-ordered children if possible
-    // if (base.depth == 0 && ordered != ordered_moves.end()) {
-    //     children = ordered->second;
-    //     ordered_moves.clear();
-    // }
-    // else {
-        children = expand(base, current_state);
-    // }
+    children = expand(base, current_state);
 
     // `base' is a terminal node
     if (children.empty()) {
@@ -177,15 +183,6 @@ void Searcher::search_under(const Node& base,
                     current_best.upper_limit,
                     current_best.descentdants_searched);
 
-    // The move that our opponent made (our starting point) is at depth 0.  We
-    // make the best move at depth 1. Our opponent will make one of the moves
-    // at depth 2. Thus, we want to store the depth-3 children at depth 2,
-    // which will be our next moves, and move order them so that we maximize
-    // pruning.
-    // if (parent.depth == 2) {
-    //     ordered_moves[current_state] = children;
-    // }
-
     return;
 }
 
@@ -240,20 +237,7 @@ std::vector<Node> Searcher::expand(const Node& base,
             }
         }
     }
-
     return children;
-}
-
-void Searcher::move_order(Who team) {
-    for (auto& p : ordered_moves) {
-        auto& moves = p.second;
-        if (team == Who::HOME) {
-            std::sort(moves.begin(), moves.end(), std::greater<Node>());
-        }
-        else {
-            std::sort(moves.begin(), moves.end(), std::less<Node>());
-        }
-    }
 }
 
 void Searcher::tap(const Node& node, DomineeringState& state) {

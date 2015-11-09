@@ -80,7 +80,7 @@ public:
      * Called when the game has ended. Default behavior is to do nothing.
      * @param result -1 if loss, 0 if draw, +1 if
      */
-    inline void endGame(int result) { }
+    virtual inline void endGame(int result) { }
     
     /**
      * Called at the end of the tournament. Can be used to do
