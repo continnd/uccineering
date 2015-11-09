@@ -7,6 +7,7 @@
 #include "Location.h"
 #include "Node.h"
 #include "TranspositionTable.h"
+#include "Timer.h"
 
 #include <algorithm>
 #include <fstream>
@@ -141,6 +142,8 @@ private:
      * configurations.
      */
     TranspositionTable tp_table;
+
+    Timer timer;
 
     /**
      * Expands the given node for the next possible placement.

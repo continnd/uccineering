@@ -1,4 +1,5 @@
 #include "Searcher.h"
+#include <iostream>
 
 /* Constructors, destructor, and assignment operator {{{ */
 Searcher::Searcher() {
@@ -12,6 +13,7 @@ Searcher::Searcher(const Searcher& other)
     , best_moves{other.best_moves}
     , ordered_moves{other.ordered_moves}
     , tp_table{other.tp_table}
+    , timer{other.timer}
 {
 }
 
@@ -20,6 +22,7 @@ Searcher::Searcher(Searcher&& other)
     , best_moves{std::move(other.best_moves)}
     , ordered_moves{std::move(other.ordered_moves)}
     , tp_table{std::move(other.tp_table)}
+    , timer{std::move(other.timer)}
 {
 }
 
@@ -31,6 +34,7 @@ Searcher& Searcher::operator=(const Searcher& other) {
     best_moves = other.best_moves;
     ordered_moves = other.ordered_moves;
     tp_table = other.tp_table;
+    timer = other.timer;
 
     return *this;
 }
@@ -40,6 +44,7 @@ Searcher& Searcher::operator=(Searcher&& other) {
     best_moves = std::move(other.best_moves);
     ordered_moves = std::move(other.ordered_moves);
     tp_table = std::move(other.tp_table);
+    timer = std::move(other.timer);
 
     return *this;
 }
@@ -51,6 +56,9 @@ void Searcher::reset() {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
+
+    timer.click();
+
     if (move_thread.joinable()) {
         move_thread.join();
     }
@@ -64,6 +72,14 @@ Node Searcher::search(const DomineeringState& state,
     search_under(root, ab, state, depth_limit);
     move_thread = std::thread(&Searcher::move_order, this, root.team);
 
+    timer.click();
+
+    std::cout << timer.get_time() << std::endl;
+    std::cout << timer.get_lapse_time() << std::endl;
+//    timer = timer + timer.get_time();
+
+    std::cout << "timer" << std::endl;
+    std::cout << timer.get_time() << std::endl;
     return best_moves.front();
 }
 

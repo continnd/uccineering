@@ -10,11 +10,16 @@ void Timer::click() {
         gettimeofday(&t_dummy, NULL);
         t_end = t_dummy.tv_sec + (t_dummy.tv_usec / 1000000.0);
         diff = t_end - t_start;
+        lapse = lapse + diff;
     }
 }
 
 float Timer::get_time() {
     return diff;
+}
+
+float Timer::get_lapse_time(){
+    return lapse;
 }
 
 int Timer::get_suggested_depth(int b, float time_allotted) {
