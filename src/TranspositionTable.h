@@ -4,24 +4,66 @@
 #include "DomineeringState.h"
 #include "Evaluators.h"
 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 using score_t = Evaluator::score_t;
 
 class TranspositionTable {
 public:
-    /* File that contains the initial transposition table */
-    static const std::string TP_FILE_NAME;
+    /**
+     * A simple struct that represents an entry in the transposition table.
+     * The `nodes_searched' member variable is used when deleting old elements
+     * when the table gets too large.
+     */
+    struct Entry {
+        Entry();
+        Entry(const score_t lower_limit,
+              const score_t upper_limit,
+              const long unsigned nodes_searched);
+        Entry(const Entry& other);
+        Entry(Entry&& other);
+
+        Entry& operator=(const Entry& other);
+        Entry& operator=(Entry&& other);
+
+        score_t lower_limit, upper_limit;
+        long unsigned nodes_searched;
+    };
+
+    // Declare type of table here so that key-value size can be calculated
+    using table_t = std::unordered_map<DomineeringState, Entry>;
+
+    /**
+     * Maximum memory we should use in megabytes.
+     */
+    static const unsigned MEM_LIMIT = 500;
+
+    static const unsigned BYTES_PER_MEGABYTE = 1024 * 1024;
+
+    /**
+     * The amount of memory it takes for one entry in bytes.
+     * Estimated by adding the size of hash key and value.
+     */
+    static constexpr size_t BYTES_PER_ENTRY =
+        sizeof(typename table_t::value_type);
 
     /**
      * Maximum number of entries to store in the transposition table.
      * 0 for unlimited.
      */
-    static const unsigned TP_MAX = 0;
+    static constexpr unsigned TP_MAX =
+        MEM_LIMIT * BYTES_PER_MEGABYTE / BYTES_PER_ENTRY;
+
+    /**
+     * How much entries to get rid of in one shrink.
+     */
+    static constexpr float SHRINK_RATE = 0.8;
 
     TranspositionTable();
 
@@ -36,11 +78,15 @@ public:
     TranspositionTable& operator=(TranspositionTable&& other);
 
     /**
-     * Populates the transposition table from the given file stream.
-     *
-     * \param[in] ifs the input file stream to read from.
+     * Clears the transposition table.
      */
-    void populate(std::ifstream& ifs);
+    void clear();
+
+    /**
+     * Shrinks the transposition table by removing entries that have smaller
+     * searched nodes count.
+     */
+    void shrink();
 
     /**
      * Checks for existence in the transposition table.
@@ -53,22 +99,30 @@ public:
      *         and the second element is true if there was a hit in any of the
      *         transposition, false otherwise.
      */
-    std::pair<score_t, bool> check(const DomineeringState& state);
+    std::pair<Entry, bool> check(const DomineeringState& state);
 
     /**
      * Adds the current state and the resulting score to the transposition
      * table.
      * If the number of entries in the table exceeds a threashold, some
      * entries in the transposition table are deleted.
-     * This method modifies the state, but modifies in such a way that the
-     * board configuration is the same at the beginning and the end of the
-     * method.
      *
      * \param[in] state the current state.
      *
-     * \param[in] score the best score that results from the given state.
+     * \param[in] lower_limit the lowest possible score that is guarenteed to
+     *                        be found when further searching down the tree.
+     *
+     * \param[in] upper_limit the highest possible score that is guarenteed to
+     *                        be found when further searching down the tree.
+     *
+     * \param[in] nodes_searched the number of nodes searched up to the point
+     *            of insertion. This is used when the table gets too large and
+     *            needs to be shrunk.
      */
-    void insert(DomineeringState& state, const score_t score);
+    void insert(const DomineeringState& state,
+                const score_t lower_limit,
+                const score_t upper_limit,
+                const long unsigned nodes_searched);
 
 private:
     /**
@@ -77,22 +131,16 @@ private:
      * been explored.
      *
      * Key: the state.
-     * Val: the resulting score.
+     * Val: a pair of resulting score and the move number this entry was added.
+     */
+    table_t table;
+
+    /**
+     * Flips the board horizontally (along the x-axis).
      *
-     * TODO: score or Node for the value?
+     * \param[out] state the state to be flipped.
      */
-    std::unordered_map<DomineeringState, score_t> table;
-
-    /**
-     * Checks if state is in the transposition table for all four direction by
-     * rotating.
-     */
-    std::pair<score_t, bool> check_four_directions(DomineeringState& state);
-
-    /**
-     * Rotates the board and adds them to the transposition table.
-     */
-    void add_four_directions(DomineeringState& state, const score_t score);
+    void flip_horizontal(DomineeringState& state);
 
     /**
      * Flips the board vertically (along the y-axis).
@@ -115,6 +163,10 @@ private:
      */
     void rotate_cw(DomineeringState& state);
 };
+
+inline void TranspositionTable::clear() {
+    table.clear();
+}
 
 #endif /* end of include guard */
 
