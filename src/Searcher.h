@@ -7,6 +7,7 @@
 #include "Location.h"
 #include "Node.h"
 #include "TranspositionTable.h"
+#include "Timer.h"
 
 #include <algorithm>
 #include <fstream>
@@ -105,8 +106,10 @@ public:
      * For example, it joins the threads that it spawned.
      */
     void cleanup();
+    float get_time_left() const { return timer.get_time_left(); }
 
 private:
+    Timer timer;
     /**
      * The root of the search tree.
      */
@@ -142,6 +145,9 @@ private:
      */
     TranspositionTable tp_table;
 
+    Who last_team = Who::HOME;
+
+    
     /**
      * Expands the given node for the next possible placement.
      *

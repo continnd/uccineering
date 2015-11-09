@@ -17,6 +17,7 @@
  */
 
 static const std::string GAME_NAME = "Domineering";
+static constexpr float TIME_LIMIT = 20;
 
 class Moderator : public GamePlayer {
 public:
