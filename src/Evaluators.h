@@ -6,6 +6,8 @@
 #include <functional>
 #include <utility>
 
+#include <iostream>
+
 using DS = DomineeringState;
 
 struct Evaluator {

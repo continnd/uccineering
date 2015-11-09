@@ -1,6 +1,8 @@
 #include "Searcher.h"
 #include "GamePlayer.h"
 
+#include <iostream>
+
 /* Constructors, destructor, and assignment operator {{{ */
 Searcher::Searcher() {
     timer = Timer(240);
@@ -38,7 +40,7 @@ Searcher& Searcher::operator=(const Searcher& other) {
     tp_table = other.tp_table;
     timer = other.timer;
 
-    return *this;
+        return *this;
 }
 
 Searcher& Searcher::operator=(Searcher&& other) {
@@ -48,7 +50,7 @@ Searcher& Searcher::operator=(Searcher&& other) {
     tp_table = std::move(other.tp_table);
     timer = std::move(other.timer);
 
-    return *this;
+        return *this;
 }
 /* }}} */
 
@@ -80,7 +82,7 @@ Node Searcher::search(const DomineeringState& state,
 
     timer.click();
 
-    return best_moves.front();
+        return best_moves.front();
 }
 
 void Searcher::search_under(const Node& base,
@@ -256,20 +258,19 @@ std::vector<Node> Searcher::expand(const Node& base,
             }
         }
     }
-
-    return children;
+        return children;
 }
 
 void Searcher::move_order(Who team) {
-    for (auto& p : ordered_moves) {
-        auto& moves = p.second;
-        if (team == Who::HOME) {
-            std::sort(moves.begin(), moves.end(), std::greater<Node>());
+        for (auto& p : ordered_moves) {
+                auto& moves = p.second;
+                if (team == Who::HOME) {
+                        std::sort(moves.begin(), moves.end(), std::greater<Node>());
+                }
+                else {
+                        std::sort(moves.begin(), moves.end(), std::less<Node>());
+                }
         }
-        else {
-            std::sort(moves.begin(), moves.end(), std::less<Node>());
-        }
-    }
 }
 
 void Searcher::tap(const Node& node, DomineeringState& state) {
