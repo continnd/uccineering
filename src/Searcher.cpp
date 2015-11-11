@@ -67,9 +67,8 @@ Node Searcher::search(const DomineeringState& state,
 
     timer.click();
 
-    if (move_thread.joinable()) {
-        move_thread.join();
-    // }
+    move_thread.join();
+
     // Initialize best moves
     best_moves.resize(depth_limit + 1);
     std::fill(best_moves.begin(), best_moves.end(), Node());
@@ -79,15 +78,18 @@ Node Searcher::search(const DomineeringState& state,
     tp_table.clear();
     search_under(root, ab, state, depth_limit);
 
+    move_thread = std::thread(&Searcher::move_order, this, root.team);
+
     timer.click();
 
     return best_moves.front();
 }
 
 void Searcher::search_under(const Node& base,
-                            AlphaBeta ab,
-                            const DomineeringState& current_state,
-                            const unsigned depth_limit) {
+        AlphaBeta ab,
+        const DomineeringState& current_state,
+        const unsigned depth_limit) {
+
     Node& current_best = best_moves[base.depth];
 
     // Base case
@@ -108,8 +110,8 @@ void Searcher::search_under(const Node& base,
         // chosen by the parent, but that won't happen because there already
         // is a better value somewhere in another sub tree.
         current_best.set_score(base.team == Who::HOME
-                               ? entry.lower_limit
-                               : entry.upper_limit);
+                ? entry.lower_limit
+                : entry.upper_limit);
         current_best.lower_limit = entry.lower_limit;
         current_best.upper_limit = entry.upper_limit;
         return;

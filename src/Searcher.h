@@ -134,6 +134,7 @@ private:
      * Val: the possible children nodes, ordered by preference.
      */
     std::unordered_map<DomineeringState, std::vector<Node>> ordered_moves;
+    void move_order(Who team);
 
     /**
      * Thread that is spawned to do move ordering during the opponents turn.
