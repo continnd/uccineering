@@ -19,7 +19,7 @@ float Timer::get_time() {
     return diff;
 }
 
-float Timer::get_time_left() {
+float Timer::get_time_left() const {
     return time_left;
 }
 

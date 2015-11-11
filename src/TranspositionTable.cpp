@@ -77,27 +77,39 @@ TPT& TPT::operator=(TPT&& other) {
 /* }}} */
 
 std::pair<TPT::Entry, bool> TPT::check(const DomineeringState& state) {
-#if 1
+    DomineeringState state_copy{state};
+
+    // Original position
     auto it = table.find(state);
     if (it != table.end()) {
         return std::make_pair(it->second, true);
     }
-    return std::make_pair(Entry(), false);
-#else
-    DomineeringState state_copy{state};
 
-    auto p = check_four_directions(state_copy);
-    // Found?
-    if (p.second) {
-        return p;
+    flip_horizontal(state_copy);
+
+    // Horizontal
+    it = table.find(state);
+    if (it != table.end()) {
+        return std::make_pair(it->second, true);
     }
 
-    // Now flip and do the same thing
+    // Horizontal AND vertical
     flip_vertical(state_copy);
+    it = table.find(state);
+    if (it != table.end()) {
+        return std::make_pair(it->second, true);
+    }
 
-    // Whatever we get is the result
-    return check_four_directions(state_copy);
-#endif
+    // Vertical
+    // Revert the horizontal flip
+    flip_horizontal(state_copy);
+    it = table.find(state);
+    if (it != table.end()) {
+        return std::make_pair(it->second, true);
+    }
+
+    // No match
+    return std::make_pair(Entry(), false);
 }
 
 void TPT::shrink() {
@@ -137,20 +149,17 @@ void TPT::insert(const DomineeringState& state,
 
 /* Private methods */
 
-std::pair<TPT::Entry, bool>
-TPT::check_four_directions(DomineeringState& state) {
-    // Rotate and check
-    for (unsigned i = 0; i < 4; i++) {
-        auto it = table.find(state);
-        if (it != table.end()) {
-            Entry& entry = it->second;
-            return std::make_pair(std::move(entry), true);
+void TPT::flip_horizontal(DomineeringState& state) {
+    for (unsigned i = 0; i < state.ROWS; i++) {
+        for (unsigned j = 0; j < state.COLS / 2; j++) {
+            // Row to swap
+            unsigned k = state.ROWS - 1 - i;
+            char a = state.getCell(i, j);
+            char b = state.getCell(k, j);
+            state.setCell(i, j, b);
+            state.setCell(k, j, a);
         }
-        rotate_cw(state);
     }
-
-    // No match
-    return std::make_pair(Entry(), false);
 }
 
 void TPT::flip_vertical(DomineeringState& state) {

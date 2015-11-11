@@ -53,11 +53,6 @@ DomineeringMove Moderator::next_move(const DomineeringState& state) {
     return best_child.parent_move.to_move();
 }
 
-Node Moderator::spawn_searcher(const Node& nodes) {
-    // TODO: Implement me!
-    return Node();
-}
-
 GameMove* Moderator::getMove(GameState& state, const std::string& last_move) {
     const auto&& m = next_move(static_cast<DomineeringState&>(state));
     return new DomineeringMove(m);
@@ -69,15 +64,23 @@ unsigned Moderator::get_search_depth(const DomineeringState& state) const {
     unsigned game_moves = state.getNumMoves();
     unsigned depth;
 
-    // The first four moves are not worth searching deep
-    if (game_moves <= 4) {
-        depth = 4;
-    }
-    else if (game_moves > 13) {
-        depth = 8;
+    if (searcher.get_time_left() > TIME_LIMIT) {
+        // The first four moves are not worth searching deep
+        if (game_moves <= 4) {
+            depth = 4;
+        }
+        else if (game_moves >= 16) {
+            depth = 11;
+        }
+        else if (game_moves >= 14) {
+            depth = 8;
+        }
+        else {
+            depth = 6;
+        }
     }
     else {
-        depth = 6;
+        depth = 4;
     }
     return depth;
 }
