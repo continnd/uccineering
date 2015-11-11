@@ -1,10 +1,13 @@
 #include "Searcher.h"
+#include <iostream>
 
 /* Constructors, destructor, and assignment operator {{{ */
 Searcher::Searcher() {
+    move_thread = std::thread(&Searcher::move_order, this, Who::HOME);
 }
 
 Searcher::Searcher(std::ifstream& ifs) {
+    move_thread = std::thread(&Searcher::move_order, this, Who::HOME);
 }
 
 Searcher::Searcher(const Searcher& other)
@@ -13,6 +16,7 @@ Searcher::Searcher(const Searcher& other)
     , ordered_moves{other.ordered_moves}
     , tp_table{other.tp_table}
 {
+    move_thread = std::thread(&Searcher::move_order, this, Who::HOME);
 }
 
 Searcher::Searcher(Searcher&& other)
@@ -21,6 +25,7 @@ Searcher::Searcher(Searcher&& other)
     , ordered_moves{std::move(other.ordered_moves)}
     , tp_table{std::move(other.tp_table)}
 {
+    move_thread = std::thread(&Searcher::move_order, this, Who::HOME);
 }
 
 Searcher::~Searcher() {
@@ -51,9 +56,9 @@ void Searcher::reset() {
 
 Node Searcher::search(const DomineeringState& state,
         const unsigned depth_limit) {
-    if (move_thread.joinable()) {
+    // if (move_thread.joinable()) {
         move_thread.join();
-    }
+    // }
     // Initialize best moves
     best_moves.resize(depth_limit + 1);
     std::fill(best_moves.begin(), best_moves.end(), Node());
@@ -99,15 +104,15 @@ void Searcher::search_under(const Node& base,
     }
 
     std::vector<Node> children;
-    // auto ordered = ordered_moves.find(current_state);
+    auto ordered = ordered_moves.find(current_state);
     // Use move-ordered children if possible
-    // if (base.depth == 0 && ordered != ordered_moves.end()) {
-    //     children = ordered->second;
-    //     ordered_moves.clear();
-    // }
-    // else {
+    if (base.depth == 0 && ordered != ordered_moves.end()) {
+        children = ordered->second;
+        ordered_moves.clear();
+    }
+    else {
         children = expand(base, current_state);
-    // }
+    }
 
     // `base' is a terminal node
     if (children.empty()) {
@@ -121,8 +126,8 @@ void Searcher::search_under(const Node& base,
      * belongs to.
      */
     current_best.set_score(base.team == Who::HOME
-                           ? AlphaBeta::NEG_INF
-                           : AlphaBeta::POS_INF);
+            ? AlphaBeta::NEG_INF
+            : AlphaBeta::POS_INF);
 
     DomineeringState next_state{current_state};
     next_state.togglePlayer();
@@ -158,9 +163,9 @@ void Searcher::search_under(const Node& base,
             if (ab.can_prune(child.score(), base.team)) {
                 // Add result to transposition table
                 tp_table.insert(current_state,
-                                current_best.lower_limit,
-                                current_best.upper_limit,
-                                current_best.descentdants_searched);
+                        current_best.lower_limit,
+                        current_best.upper_limit,
+                        current_best.descentdants_searched);
                 return;
             }
         }
@@ -171,9 +176,9 @@ void Searcher::search_under(const Node& base,
     current_best.upper_limit = current_best.score();
     // Add result to transposition table
     tp_table.insert(current_state,
-                    current_best.lower_limit,
-                    current_best.upper_limit,
-                    current_best.descentdants_searched);
+            current_best.lower_limit,
+            current_best.upper_limit,
+            current_best.descentdants_searched);
 
     // The move that our opponent made (our starting point) is at depth 0.  We
     // make the best move at depth 1. Our opponent will make one of the moves
@@ -233,8 +238,8 @@ std::vector<Node> Searcher::expand(const Node& base,
             if (current_state.moveOK(parent_move)) {
                 // Note: my_move is HOW I got to this state i.e. base's move
                 children.push_back(Node(child_team,
-                                        child_depth,
-                                        Location(parent_move)));
+                            child_depth,
+                            Location(parent_move)));
             }
         }
     }
@@ -251,6 +256,9 @@ void Searcher::move_order(Who team) {
         else {
             std::sort(moves.begin(), moves.end(), std::less<Node>());
         }
+
+        for (Node s : moves) std::cout << s.score();
+        std::cout << std::endl;
     }
 }
 
